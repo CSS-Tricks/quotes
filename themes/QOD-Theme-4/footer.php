@@ -1,7 +1,7 @@
 
   <div id="footer">
     <div class="footer-left">
-      Curated by <a href="http://chriscoyier.net">Chris Coyier</a>
+      Curated by <a href="https://chriscoyier.net">Chris Coyier</a>
     </div>
     <div class="footer-right">
       <a href="/archives/">Archives</a>
