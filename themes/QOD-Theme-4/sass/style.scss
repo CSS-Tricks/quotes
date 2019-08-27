@@ -1,0 +1,247 @@
+$blue: #16B6DF;
+
+* {
+	box-sizing: border-box;
+}
+
+body {
+	font-family: 'Raleway', sans-serif;
+	font-weight: 300;
+	color: #545454;
+	overflow-x: hidden;
+}
+
+a {
+	text-decoration: none;
+	&:hover,
+	&:active {
+		text-decoration: underline;
+	}
+}
+
+#page-wrap {
+	max-width: 1000px;
+	position: relative;
+	margin-left: auto;
+	margin-right: auto;
+}
+
+h1 {
+	font-weight: bold;
+	text-transform: uppercase;
+	font-weight: 400;
+	font-size: 30px;
+	margin-top: 30px;
+	margin-left: 100px;
+	width: 300px;
+	line-height: 1;
+	a {
+		color: $blue;
+		text-decoration: none;
+		&:hover,
+		&:active {
+			text-decoration: none;
+		}
+	}
+	.italics {
+		font-style: italic;
+		text-transform: lowercase;
+		font-weight: normal;
+		font-family: "Baskerville", cursive;
+		vertical-align: text-top;
+		line-height: 1px;
+	}
+	.bigger {
+		font-size: 46px;
+	}
+	@media (max-width: 1000px) {
+		margin-left: 0;
+	}
+}
+
+.post {
+	max-width: 600px;
+	position: relative;
+	margin: 100px auto;
+	&:before, &:after {
+		position: absolute;
+		top: 10px;
+		font-size: 350px;
+		color: $blue;
+		font-family: Arial;
+		font-weight: bold;
+		line-height: 300px;
+	}
+	&:before {
+		left: -200px;
+		content: '\201c';
+	}
+	&:after {
+		right: -200px;
+		content: '\201d';
+	}
+	@media (max-width: 1000px) {
+		margin: 20px 10px 150px;
+		&:before,
+		&:after {
+			display: none;
+		}
+	}
+}
+
+#quote-content {
+	font-family: 'Lora', serif;
+	font-size: 36px;
+	line-height: 1.3em;
+	margin-bottom: 10px;
+	@media (max-width: 1000px) {
+		font-size: 21px;
+	}
+}
+
+#quote-title-dash, #quote-title {
+	font-size: 26px;
+	text-transform: uppercase;
+	color: $blue;
+	font-weight: bold;
+}
+
+#quote-source {
+	float: right;
+	line-height: 26px;
+	font-size: 18px;
+	color: #B5B5B5;
+	font-weight: bold;
+	a {
+		color: #B5B5B5;
+	}
+	@media (max-width: 1000px) {
+		float: none;
+		display: block;
+	}
+}
+
+#twitter {
+	color: $blue;
+	display: inline-block;
+	margin-top: 8px;
+	margin-left: 29px;
+	@media (max-width: 1000px) {
+		margin: 0;
+	}
+}
+
+#quote-button-wrapper {
+	position: absolute;
+	top: 0;
+	right: 0;
+	@media (max-width: 1000px) {
+		position: fixed;
+		top: auto;
+		bottom: 60px;
+		width: 90%;
+		right: 5%;
+		z-index: 1;
+		#get-another-quote-button {
+			display: block;
+			text-align: center;
+			box-shadow: 0 0 10px 10px white;
+			font-size: 14px;
+		}
+	}
+}
+#get-another-quote-button {
+	text-decoration: none;
+	color: $blue;
+	border: 3px solid $blue;
+	border-radius: 5px;
+	padding: 10px 15px;
+	font-weight: bold;
+	background: #fff;
+}
+
+.archives {
+	a {
+		color: $blue;
+		display: inline-block;
+		padding: 5px;
+	}
+}
+
+#footer {
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	width: 100%;
+	padding: 10px;
+	background: white;
+	box-shadow: 0 -10px 20px white;
+	a {
+		color: #B5B6BF;
+	}
+	@media (max-width: 1000px) {
+		.footer-left,
+		.footer-right {
+			font-size: 8px;
+			float: none;
+			width: 100%;
+			text-align: center;
+			padding: 3px;
+		}
+	}
+}
+
+.footer-left {
+	float: left;
+}
+
+.footer-right {
+	float: right;
+}
+
+.page-template-default .post {
+	h1 {
+		margin: 0;
+		margin-bottom: 20px;
+	}
+	h3 {
+		font-weight: bold;
+		font-size: 1.2em;
+		margin-bottom: 20px;
+	}
+	pre {
+		background: #eee;
+		padding: 10px;
+		margin: 0 0 20px 0;
+		border-radius: 5px;
+		overflow: auto;
+	}
+	p > code {
+		word-wrap: break-word;
+	}
+	p {
+		margin: 0 0 20px 0;
+		line-height: 1.5em;
+	}
+	@media (max-width: 1000px) {
+		font-size: 10px;
+	}
+}
+
+#post-615 h3 {
+	margin: 20px 0 8px 0;
+	text-transform: uppercase;
+	border-bottom: 1px #999 solid;
+}
+#post-615 ul {
+	padding-left: 20px;
+	margin-left: 10px;
+	margin-bottom: 20px !important;
+	line-height: 140%;
+}
+#post-615 li {
+	margin-bottom: 5px;
+}
+#post-615 li strong {
+	color: #71b8fa;
+}

@@ -1,0 +1,31 @@
+*							{ margin: 0; padding: 0; }
+body						{ font-family: Georgia, Serif; }
+
+a							{ text-decoration: none; }
+
+#header						{ padding: 10px 10px 0; background: #3451b0; overflow: hidden; }
+#header h1					{ width: 369px; float: left; }
+#header h1 a				{ color: black; display: block; height: 125px; 
+                              background: url(images/QOD-Logo.png) left center no-repeat; text-indent: -9999px; }
+#header #ad-area            { width: 130px; float: right; }
+#header #extra-stuff		{ width: 250px; float: right; padding: 10px 0 0 0; }
+#header #extra-stuff a		{ float: right; padding: 3px 6px; background: white; text-transform: uppercase;
+							  font-size: 11px; border: 1px solid white; color: #002089; letter-spacing: 1px;
+							  margin: 5px 15px 5px 0; }
+#header #extra-stuff a:hover{ border: 1px solid #002089; }
+							  
+.post						{ width: 380px; margin: 0 auto; padding: 20px 40px; }
+.post p						{ font-size: 26px; margin: 0 0 12px 0; }
+.author						{ text-align: right; font-family: Georgia, Serif; font-weight: normal; font-style: italic; }
+.author a					{ border-bottom: 1px dotted #3451b0; color: #3451b0; padding: 0 0 2px 0; }
+.author a:hover				{ border-bottom: 1px dotted black; color: black; }
+
+span.line a					{ float: left; padding: 2px 5px; background: white; text-transform: uppercase;
+							  font-size: 11px; border: 1px solid #ccc; color: #666; letter-spacing: 1px;
+							  margin: 0 10px 10px 0; }
+span.line a:hover			{ border: 1px solid #900; background: #fbffde; }
+
+ul                          { list-style: none; }
+ul.post-meta li             { text-align: right; }
+ul.post-meta a              { border-bottom: 1px dotted #2d71ce; color: #2d71ce; }
+ul.post-meta a:hover		{ border-bottom: 1px dotted black; color: black; }

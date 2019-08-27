@@ -1,0 +1,50 @@
+/*
+    Quotes on Design
+    by: Chris Coyier
+*/
+*							{ margin: 0; padding: 0; }
+body						{ font: 12px Georgia, Serif; }
+html                        { overflow-y: scroll; }
+
+a							{ text-decoration: none; outline: none; }
+.clear                      { clear: both; }
+
+h1							{ font: 36px Georgia, Serif; margin: 8px 0 8px 0; }
+h3							{ font: 18px Georgia, Serif; margin: 8px 0 3px 0; }
+
+table                       { border-collapse: collapse; }
+#page-wrap                  { background: url(images/bg.png) no-repeat; width: 750px; margin: 0 auto; min-height: 500px; }
+
+#header						{ position: relative; height: 135px; }
+#header h1 a				{ position: absolute; display: block; width: 334px; height: 100px; text-indent: -9999px; }
+#ad-area                    { padding: 24px 0 0 0; width: 320px; float: left; }
+
+#extra-stuff                { position: absolute; left: 360px; top: 13px; width: 400px; }
+#extra-stuff td             { border: 1px solid #999; text-align: center; }
+.button                     { text-transform: uppercase; letter-spacing: 1px; color: #666; width: 143px; padding: 2px 4px; border: 3px solid white; -moz-border-radius: 10px; }
+.button:hover               { border: 3px solid #0092d0; }
+							  
+.post, #submit-area		    { width: 420px; float: right; line-height: 0.4; }
+#submit-area                { display: none; }
+.post p						{ margin: 0 0 12px 0; line-height: 1.2; }
+.author						{ font-size: 24px; text-align: right; font-family: Georgia, Serif; font-weight: normal; font-style: italic; }
+.author a					{ border-bottom: 1px dotted #3451b0; color: #3451b0; padding: 0 0 2px 0; }
+.author a:hover				{ border-bottom: 1px dotted black; color: black; }
+
+span.line a					{ float: left; padding: 5px; background: white;
+							  font-size: 11px;  color: #666;
+							  margin: 0 10px 10px 0; }
+span.line a:hover			{ background: #0092d0; color: white; }
+
+ul                          { list-style: none; }
+ul.post-meta li             { text-align: right; }
+ul.post-meta a              { border-bottom: 1px dotted #2d71ce; color: #2d71ce; }
+ul.post-meta a:hover		{ border-bottom: 1px dotted black; color: black; }
+
+#cse-search-box             { margin: 0 0 29px 0; }
+#cse-search-box input[type=text] { border: 1px solid #999; padding: 3px; margin: 0 0 10px -1px; width: 283px; }
+
+table#nav                   { width: 280px; }
+
+pre                         { background: #eee; padding: 5px; margin: 0 0 15px 0; }
+code                        { line-height: 1.4; }

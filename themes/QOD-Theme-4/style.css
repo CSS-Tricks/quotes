@@ -1,0 +1,203 @@
+* {
+  box-sizing: border-box; }
+
+body {
+  font-family: 'Raleway', sans-serif;
+  font-weight: 300;
+  color: #545454;
+  overflow-x: hidden; }
+
+a {
+  text-decoration: none; }
+  a:hover, a:active {
+    text-decoration: underline; }
+
+#page-wrap {
+  max-width: 1000px;
+  position: relative;
+  margin-left: auto;
+  margin-right: auto; }
+
+h1 {
+  font-weight: bold;
+  text-transform: uppercase;
+  font-weight: 400;
+  font-size: 30px;
+  margin-top: 30px;
+  margin-left: 100px;
+  width: 300px;
+  line-height: 1; }
+  h1 a {
+    color: #16B6DF;
+    text-decoration: none; }
+    h1 a:hover, h1 a:active {
+      text-decoration: none; }
+  h1 .italics {
+    font-style: italic;
+    text-transform: lowercase;
+    font-weight: normal;
+    font-family: "Baskerville", cursive;
+    vertical-align: text-top;
+    line-height: 1px; }
+  h1 .bigger {
+    font-size: 46px; }
+  @media (max-width: 1000px) {
+    h1 {
+      margin-left: 0; } }
+
+.post {
+  max-width: 600px;
+  position: relative;
+  margin: 100px auto; }
+  .post:before, .post:after {
+    position: absolute;
+    top: 10px;
+    font-size: 350px;
+    color: #16B6DF;
+    font-family: Arial;
+    font-weight: bold;
+    line-height: 300px; }
+  .post:before {
+    left: -200px;
+    content: '\201c'; }
+  .post:after {
+    right: -200px;
+    content: '\201d'; }
+  @media (max-width: 1000px) {
+    .post {
+      margin: 20px 10px 150px; }
+      .post:before, .post:after {
+        display: none; } }
+
+#quote-content {
+  font-family: 'Lora', serif;
+  font-size: 36px;
+  line-height: 1.3em;
+  margin-bottom: 10px; }
+  @media (max-width: 1000px) {
+    #quote-content {
+      font-size: 21px; } }
+
+#quote-title-dash, #quote-title {
+  font-size: 26px;
+  text-transform: uppercase;
+  color: #16B6DF;
+  font-weight: bold; }
+
+#quote-source {
+  float: right;
+  line-height: 26px;
+  font-size: 18px;
+  color: #B5B5B5;
+  font-weight: bold; }
+  #quote-source a {
+    color: #B5B5B5; }
+  @media (max-width: 1000px) {
+    #quote-source {
+      float: none;
+      display: block; } }
+
+#twitter {
+  color: #16B6DF;
+  display: inline-block;
+  margin-top: 8px;
+  margin-left: 29px; }
+  @media (max-width: 1000px) {
+    #twitter {
+      margin: 0; } }
+
+#quote-button-wrapper {
+  position: absolute;
+  top: 0;
+  right: 0; }
+  @media (max-width: 1000px) {
+    #quote-button-wrapper {
+      position: fixed;
+      top: auto;
+      bottom: 60px;
+      width: 90%;
+      right: 5%;
+      z-index: 1; }
+      #quote-button-wrapper #get-another-quote-button {
+        display: block;
+        text-align: center;
+        box-shadow: 0 0 10px 10px white;
+        font-size: 14px; } }
+
+#get-another-quote-button {
+  text-decoration: none;
+  color: #16B6DF;
+  border: 3px solid #16B6DF;
+  border-radius: 5px;
+  padding: 10px 15px;
+  font-weight: bold;
+  background: #fff; }
+
+.archives a {
+  color: #16B6DF;
+  display: inline-block;
+  padding: 5px; }
+
+#footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  padding: 10px;
+  background: white;
+  box-shadow: 0 -10px 20px white; }
+  #footer a {
+    color: #B5B6BF; }
+  @media (max-width: 1000px) {
+    #footer .footer-left,
+    #footer .footer-right {
+      font-size: 8px;
+      float: none;
+      width: 100%;
+      text-align: center;
+      padding: 3px; } }
+
+.footer-left {
+  float: left; }
+
+.footer-right {
+  float: right; }
+
+.page-template-default .post h1 {
+  margin: 0;
+  margin-bottom: 20px; }
+.page-template-default .post h3 {
+  font-weight: bold;
+  font-size: 1.2em;
+  margin-bottom: 20px; }
+.page-template-default .post pre {
+  background: #eee;
+  padding: 10px;
+  margin: 0 0 20px 0;
+  border-radius: 5px;
+  overflow: auto; }
+.page-template-default .post p > code {
+  word-wrap: break-word; }
+.page-template-default .post p {
+  margin: 0 0 20px 0;
+  line-height: 1.5em; }
+@media (max-width: 1000px) {
+  .page-template-default .post {
+    font-size: 10px; } }
+
+#post-615 h3 {
+  margin: 20px 0 8px 0;
+  text-transform: uppercase;
+  border-bottom: 1px #999 solid; }
+
+#post-615 ul {
+  padding-left: 20px;
+  margin-left: 10px;
+  margin-bottom: 20px !important;
+  line-height: 140%; }
+
+#post-615 li {
+  margin-bottom: 5px; }
+
+#post-615 li strong {
+  color: #71b8fa; }

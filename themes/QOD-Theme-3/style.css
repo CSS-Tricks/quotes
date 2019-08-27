@@ -1,0 +1,102 @@
+/*
+    Quotes on Design
+    by: Chris Coyier
+*/
+
+* { margin: 0; padding: 0; }
+body { font: 12px Georgia, Serif; color: white; background: url(images/bg.jpg); }
+html { overflow-y: scroll; }
+
+a { text-decoration: none; outline: none; }
+a img { border: 0; }
+img { vertical-align: middle; }
+.clear { clear: both; }
+
+p { margin: 0 0 20px 0; }
+h1 { font: 36px Georgia, Serif; margin: 8px 0 8px 0; }
+h3 { font: 18px Georgia, Serif; margin: 8px 0 3px 0; }
+
+table { border-collapse: collapse; }
+#page-wrap { width: 815px; margin: 0 auto; min-height: 500px; }
+
+#left-col					{ width: 365px; float: left; padding: 192px 0 0 0; 
+							  background: url(images/logo.jpg) no-repeat;
+	 					      position: relative; }
+#left-col h1 a				{ position: absolute; display: block; width: 365px; height: 198px; text-indent: -9999px;
+	 						  top: 0; left: 0; }
+	
+#left-col ul				{ margin: 0 0 15px 0; }
+#left-col ul li				{ position: relative; }	
+#left-col ul li div			{ position: absolute; right: 100%; height: 100%; top: 0; width: 5000px; }
+#left-col ul li#another a,
+#left-col ul li#another div	{ background: #27425d; }
+#left-col ul li#archive a,
+#left-col ul li#archive div	{ background: #385a7b; }
+#left-col ul li#rssfeed a,
+#left-col ul li#rssfeed div	{ background: #43668a; }
+#left-col ul li#api a,
+#left-col ul li#api div		{ background: #537ba3; }
+#left-col ul li#widgets a,
+#left-col ul li#widgets div		{ background: #658fb8; }
+#left-col ul li#gotone a,
+#left-col ul li#gotone div	{ background: #7eaad5; }
+#left-col ul li	a			{ padding: 10px; margin: 0 0 3px 0; display: block; color: white; width: 260px;
+							  -moz-border-radius-topright: 14px; -moz-border-radius-bottomright: 14px;
+							  -webkit-border-top-right-radius: 14px; -webkit-border-bottom-right-radius: 14px;
+							   font: bold 16px Georgia, Serif; text-transform: uppercase; text-indent: 63px; }
+#left-col ul li	a:hover		{ text-decoration: underline; position: relative; }	
+#spinner					{ display: none; margin-left: 5px; }
+
+#right-col 					{ width: 430px; float: right; padding: 50px 0 0 0; }
+
+#submit-area                { display: none; }
+
+.author						{ text-align: right; text-transform: uppercase; color: #57a6f6;
+	 						  font-weight: bold; font-size: 20px; }
+.author a					{ color: #57a6f6; }
+#perma						{ font-size: 10px; letter-spacing: 2px; }
+#twitter					{ font-size: 10px; letter-spacing: 2px; color: white; }
+#source					    { font-size: 10px; letter-spacing: 2px; color: white; }
+.cuf p						{ margin: 0 0 12px 0; line-height: 1.4; color: white; }
+
+pre                         { background: #eee; padding: 5px; margin: 0 0 20px 0; color: black; }
+code                        { line-height: 1.4; }
+
+.line a						{ line-height: 1.2; font-size: 12px; padding: 5px; color: #666; }
+.line a:hover				{ color: white; }
+
+.post-meta					{ list-style: none; text-align: right; }
+.post-meta a				{ color: white; text-decoration: underline; }
+
+#results-area				{ border: 5px solid #666; padding: 10px; background: white; width: 600px; }
+
+.archives                   { font-size: 14px; line-height: 1.8; }
+.archives a                 { color: #999; padding: 2px 6px; -moz-border-radius: 5px; -webkit-border-radius: 5px; white-space: nowrap; background: rgba(145,169,193,0.3); }
+.archives a:hover           { background: rgba(145,169,193,0.9); color: #27425d;  }
+
+#cse-search-box				{ margin: 0 0 15px 0; }
+#textField					{ background: white !important; padding: 3px; border: 2px solid #666; width: 210px; }
+
+#post-1107,
+#post-615					{ padding-bottom: 40px;}
+#post-1107 h3,
+#post-615 h3                { margin: 20px 0 8px 0; text-transform: uppercase; border-bottom: 1px #999 solid; }
+#post-615 ul				{ padding-left: 20px; margin-left: 10px; margin-bottom: 20px !important; line-height: 140%; }
+#post-615 li				{ margin-bottom: 5px; }
+#post-615 li strong			{ color: #71b8fa; }
+#post-615 tt				{ font-family: monospace;}
+#post-1107 p,
+#post-615 p					{ line-height: 140%; }
+#post-1107 a,
+#post-615 a					{ color: #91a9c1; }
+#post-1107 a:hover,
+#post-615 a:hover			{ color: #fff; }
+
+#post-1107 h2 {
+	font-weight: normal;
+	padding: 0 0 15px;
+}
+
+#post-1107 a img {
+	border: solid 1px #333;
+}
