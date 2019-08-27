@@ -6,7 +6,7 @@
     <div class="footer-right">
       <a href="/archives/">Archives</a>
       &middot;
-      <a href="http://feeds2.feedburner.com/QuotesOnDesign">RSS</a>
+      <a href="/feed/">RSS</a>
       &middot;
       <a href="/submit/">Submit a Quote</a>
       &middot;
