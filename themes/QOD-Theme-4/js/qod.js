@@ -14,10 +14,10 @@ $("#get-another-quote-button").on("click", function(e) {
 
       // If the Source is available, use it. Otherwise hide it.
       if (
-        typeof post.custom_meta !== "undefined" &&
-        typeof post.custom_meta.Source !== "undefined"
+        typeof post.meta !== "undefined" &&
+        typeof post.meta.Source !== "undefined"
       ) {
-        $("#quote-source").html("Source: " + post.custom_meta.Source);
+        $("#quote-source").html("Source: " + post.meta.Source);
       } else {
         $("#quote-source").text("");
       }
