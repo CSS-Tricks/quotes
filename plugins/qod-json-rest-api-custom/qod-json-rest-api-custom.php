@@ -44,3 +44,14 @@ function qod_remove_extra_data( $data, $post, $context ) {
 }
 
 add_filter( 'json_prepare_post', 'qod_remove_extra_data', 12, 3 );
+
+add_action( 'rest_api_init', 'register_posts_meta_field' );
+function register_posts_meta_field() {
+  register_meta('post', 'Source',
+            [
+                'show_in_rest' => true,
+                'single' => true,
+                'type' => 'string'
+            ]
+        );
+}
