@@ -7,16 +7,11 @@ $("#get-another-quote-button").on("click", function(e) {
     success: function(data) {
       var post = data.shift(); // The data is an array of posts. Grab the first one.
 
-      console.log(post);
-
       $("#quote-title").text(post.title.rendered);
       $("#quote-content").html(post.content.rendered);
 
       // If the Source is available, use it. Otherwise hide it.
-      if (
-        typeof post.meta !== "undefined" &&
-        typeof post.meta.Source !== "undefined"
-      ) {
+      if (typeof post.meta !== "undefined" && post.meta.Source !== "") {
         $("#quote-source").html("Source: " + post.meta.Source);
       } else {
         $("#quote-source").text("");
