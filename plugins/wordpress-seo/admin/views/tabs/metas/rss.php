@@ -13,8 +13,8 @@ if ( ! defined( 'WPSEO_VERSION' ) ) {
 
 $wpseo_rss_presenter = new WPSEO_Paper_Presenter(
 	esc_html__( 'RSS feed settings', 'wordpress-seo' ),
-	dirname( __FILE__ ) . '/paper-content/rss-content.php',
-	array(
+	__DIR__ . '/paper-content/rss-content.php',
+	[
 		'help_text' => new WPSEO_Admin_Help_Panel(
 			'search-appearance-rss',
 			__( 'Learn more about the RSS feed setting', 'wordpress-seo' ),
@@ -23,7 +23,8 @@ $wpseo_rss_presenter = new WPSEO_Paper_Presenter(
 		),
 		'paper_id'  => 'settings-rss-feed',
 		'class'     => 'search-appearance',
-	)
+	]
 );
 
+// phpcs:ignore WordPress.Security.EscapeOutput -- get_output() output is properly escaped.
 echo $wpseo_rss_presenter->get_output();

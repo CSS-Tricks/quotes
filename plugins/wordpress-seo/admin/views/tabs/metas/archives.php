@@ -12,43 +12,49 @@ if ( ! defined( 'WPSEO_VERSION' ) ) {
 }
 
 // To improve readability, this tab has been divided into separate blocks, included below.
-require dirname( __FILE__ ) . '/archives/help.php';
+require __DIR__ . '/archives/help.php';
 
-$wpseo_archives = array(
-	array(
-		'title'     => esc_html__( 'Author archives settings', 'wordpress-seo' ),
+$wpseo_archives = [
+	[
+		'title'     => esc_html__( 'Author archives', 'wordpress-seo' ),
 		'view_file' => 'paper-content/author-archive-settings.php',
 		'paper_id'  => 'settings-author-archives',
-	),
-	array(
-		'title'     => esc_html__( 'Date archives settings', 'wordpress-seo' ),
+	],
+	[
+		'title'     => esc_html__( 'Date archives', 'wordpress-seo' ),
 		'view_file' => 'paper-content/date-archives-settings.php',
 		'paper_id'  => 'settings-date-archives',
-	),
-	array(
-		'title'     => esc_html__( 'Special Pages', 'wordpress-seo' ),
+	],
+	[
+		'title'     => esc_html__( 'Special pages', 'wordpress-seo' ),
 		'view_file' => 'paper-content/special-pages.php',
 		'paper_id'  => 'settings-special-pages',
-	),
-);
+	],
+];
 
+$view_utils                   = new Yoast_View_Utils();
 $recommended_replace_vars     = new WPSEO_Admin_Recommended_Replace_Vars();
 $editor_specific_replace_vars = new WPSEO_Admin_Editor_Specific_Replace_Vars();
+$opengraph_disabled_alert     = $view_utils->generate_opengraph_disabled_alert( 'archives' );
+
+// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Is correctly escaped in the generate_opengraph_disabled_alert() method.
+echo $opengraph_disabled_alert;
 
 foreach ( $wpseo_archives as $wpseo_archive_index => $wpseo_archive ) {
 	$wpseo_archive_presenter = new WPSEO_Paper_Presenter(
 		$wpseo_archive['title'],
-		dirname( __FILE__ ) . '/' . $wpseo_archive['view_file'],
-		array(
+		__DIR__ . '/' . $wpseo_archive['view_file'],
+		[
 			'collapsible'                  => true,
 			'expanded'                     => ( $wpseo_archive_index === 0 ),
 			'paper_id'                     => $wpseo_archive['paper_id'],
 			'recommended_replace_vars'     => $recommended_replace_vars,
 			'editor_specific_replace_vars' => $editor_specific_replace_vars,
 			'class'                        => 'search-appearance',
-		)
+		]
 	);
 
+	// phpcs:ignore WordPress.Security.EscapeOutput -- get_output() output is properly escaped.
 	echo $wpseo_archive_presenter->get_output();
 }
 

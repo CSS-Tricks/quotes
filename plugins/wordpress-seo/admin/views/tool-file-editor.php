@@ -11,9 +11,15 @@ if ( ! defined( 'WPSEO_VERSION' ) ) {
 	exit();
 }
 
-$yform          = Yoast_Form::get_instance();
-$robots_file    = get_home_path() . 'robots.txt';
-$ht_access_file = get_home_path() . '.htaccess';
+$yform     = Yoast_Form::get_instance();
+$home_path = get_home_path();
+
+if ( ! is_writable( $home_path ) && ! empty( $_SERVER['DOCUMENT_ROOT'] ) ) {
+	$home_path = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR;
+}
+
+$robots_file    = $home_path . 'robots.txt';
+$ht_access_file = $home_path . '.htaccess';
 
 if ( isset( $_POST['create_robots'] ) ) {
 	if ( ! current_user_can( 'edit_files' ) ) {
@@ -76,7 +82,6 @@ if ( isset( $_POST['submithtaccess'] ) ) {
 	check_admin_referer( 'wpseo-htaccess' );
 
 	if ( isset( $_POST['htaccessnew'] ) && file_exists( $ht_access_file ) ) {
-		// phpcs:ignore WordPress.Security.ValidatedSanitizedInput.InputNotSanitized -- Writing to .htaccess file and escaping for HTML will break functionality.
 		$ht_access_new = wp_unslash( $_POST['htaccessnew'] );
 		if ( is_writable( $ht_access_file ) ) {
 			$f = fopen( $ht_access_file, 'w+' );
@@ -98,22 +103,11 @@ if ( isset( $msg ) && ! empty( $msg ) ) {
 	echo '<div id="message" class="notice notice-success"><p>', esc_html( $msg ), '</p></div>';
 }
 
-$helpcenter_tab = new WPSEO_Option_Tab(
-	'bulk-editor',
-	__( 'Bulk editor', 'wordpress-seo' ),
-	array( 'video_url' => WPSEO_Shortlinker::get( 'https://yoa.st/screencast-tools-file-editor' ) )
-);
-
-$helpcenter = new WPSEO_Help_Center( 'bulk-editor', $helpcenter_tab, WPSEO_Utils::is_yoast_seo_premium() );
-$helpcenter->localize_data();
-$helpcenter->mount();
-
 // N.B.: "robots.txt" is a fixed file name and should not be translatable.
 echo '<h2>robots.txt</h2>';
 
-
 if ( ! file_exists( $robots_file ) ) {
-	if ( is_writable( get_home_path() ) ) {
+	if ( is_writable( $home_path ) ) {
 		echo '<form action="', esc_url( $action_url ), '" method="post" id="robotstxtcreateform">';
 		wp_nonce_field( 'wpseo_create_robots', '_wpnonce', true, true );
 		echo '<p>';
@@ -165,13 +159,13 @@ else {
 	else {
 		echo '<form action="', esc_url( $action_url ), '" method="post" id="robotstxtform">';
 		wp_nonce_field( 'wpseo-robotstxt', '_wpnonce', true, true );
-		echo '<p><label for="robotsnew" class="yoast-inline-label">';
+		echo '<label for="robotsnew" class="yoast-inline-label">';
 		printf(
 			/* translators: %s expands to robots.txt. */
 			esc_html__( 'Edit the content of your %s:', 'wordpress-seo' ),
 			'robots.txt'
 		);
-		echo '</label></p>';
+		echo '</label>';
 		echo '<textarea class="large-text code" rows="15" name="robotsnew" id="robotsnew">', esc_textarea( $content ), '</textarea><br/>';
 		printf(
 			'<div class="submit"><input class="button" type="submit" name="submitrobots" value="%s" /></div>',
@@ -215,13 +209,13 @@ if ( ! WPSEO_Utils::is_nginx() ) {
 		else {
 			echo '<form action="', esc_url( $action_url ), '" method="post" id="htaccessform">';
 			wp_nonce_field( 'wpseo-htaccess', '_wpnonce', true, true );
-			echo '<p><label for="htaccessnew" class="yoast-inline-label">';
+			echo '<label for="htaccessnew" class="yoast-inline-label">';
 			printf(
 				/* translators: %s expands to ".htaccess". */
 				esc_html__( 'Edit the content of your %s:', 'wordpress-seo' ),
 				'.htaccess'
 			);
-			echo '</label></p>';
+			echo '</label>';
 			echo '<textarea class="large-text code" rows="15" name="htaccessnew" id="htaccessnew">', esc_textarea( $contentht ), '</textarea><br/>';
 			printf(
 				'<div class="submit"><input class="button" type="submit" name="submithtaccess" value="%s" /></div>',

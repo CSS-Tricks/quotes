@@ -41,6 +41,10 @@ class Download {
 	function get_plugin_update_download_url( $plugin_slug, $is_beta = false ) {
 		$licence = License::get_license();
 
+		if(!$licence) {
+			return '#';
+		}
+
 		$query_args = array(
 			'request'     => 'download',
 			'licence_key' => $licence,

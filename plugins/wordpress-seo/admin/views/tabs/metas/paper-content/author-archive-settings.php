@@ -9,16 +9,17 @@
 
 $yform->toggle_switch(
 	'disable-author',
-	array(
-		'off' => __( 'Enabled', 'wordpress-seo' ),
-		'on'  => __( 'Disabled', 'wordpress-seo' ),
-	),
+	[
+		'off' => __( 'On', 'wordpress-seo' ),
+		'on'  => __( 'Off', 'wordpress-seo' ),
+	],
 	__( 'Author archives', 'wordpress-seo' )
 );
 
 ?>
 
 <div id='author-archives-titles-metas-content' class='archives-titles-metas-content'>
+<div class="yoast-settings-section">
 
 <?php
 $author_archives_help = new WPSEO_Admin_Help_Panel(
@@ -64,22 +65,34 @@ $yform->index_switch(
 
 ?>
 </div>
+</div>
 
 <?php
+
+echo '<div class="yoast-settings-section">';
 
 $recommended_replace_vars     = new WPSEO_Admin_Recommended_Replace_Vars();
 $editor_specific_replace_vars = new WPSEO_Admin_Editor_Specific_Replace_Vars();
 $editor                       = new WPSEO_Replacevar_Editor(
 	$yform,
-	array(
+	[
 		'title'                 => 'title-author-wpseo',
 		'description'           => 'metadesc-author-wpseo',
 		'page_type_recommended' => $recommended_replace_vars->determine_for_archive( 'author' ),
 		'page_type_specific'    => $editor_specific_replace_vars->determine_for_archive( 'author' ),
 		'paper_style'           => false,
-	)
+	]
 );
 
 $editor->render();
+
+echo '</div>';
+
+/**
+ * Allow adding custom fields to the admin meta page - Author archives panel in the Archives tab.
+ *
+ * @param Yoast_Form $yform The Yoast_Form object.
+ */
+do_action( 'Yoast\WP\SEO\admin_author_archives_meta', $yform );
 ?>
 </div>

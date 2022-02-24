@@ -7,10 +7,10 @@
  * @uses Yoast_Form $yform Form object.
  */
 
-$textarea_atts = array(
+$textarea_atts = [
 	'cols' => '50',
 	'rows' => '5',
-);
+];
 $yform->textarea( 'rssbefore', __( 'Content to put before each post in the feed', 'wordpress-seo' ), $textarea_atts );
 $yform->textarea( 'rssafter', __( 'Content to put after each post in the feed', 'wordpress-seo' ), $textarea_atts );
 
@@ -21,7 +21,9 @@ $rss_variables_help = new WPSEO_Admin_Help_Panel(
 	'has-wrapper'
 );
 
+// phpcs:ignore WordPress.Security.EscapeOutput -- get_button_html() output is properly escaped.
 echo '<h2 class="help-button-inline">' . esc_html__( 'Available variables', 'wordpress-seo' ) . $rss_variables_help->get_button_html() . '</h2>';
+// phpcs:ignore WordPress.Security.EscapeOutput -- get_panel_html() output is properly escaped.
 echo $rss_variables_help->get_panel_html();
 ?>
 <table class="wpseo yoast_help yoast-table-scrollable">

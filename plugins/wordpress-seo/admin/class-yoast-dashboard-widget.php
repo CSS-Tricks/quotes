@@ -49,8 +49,8 @@ class Yoast_Dashboard_Widget implements WPSEO_WordPress_Integration {
 	 * Register WordPress hooks.
 	 */
 	public function register_hooks() {
-		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_dashboard_assets' ) );
-		add_action( 'admin_init', array( $this, 'queue_dashboard_widget' ) );
+		add_action( 'admin_enqueue_scripts', [ $this, 'enqueue_dashboard_assets' ] );
+		add_action( 'admin_init', [ $this, 'queue_dashboard_widget' ] );
 	}
 
 	/**
@@ -60,7 +60,7 @@ class Yoast_Dashboard_Widget implements WPSEO_WordPress_Integration {
 	 */
 	public function queue_dashboard_widget() {
 		if ( $this->show_widget() ) {
-			add_action( 'wp_dashboard_setup', array( $this, 'add_dashboard_widget' ) );
+			add_action( 'wp_dashboard_setup', [ $this, 'add_dashboard_widget' ] );
 		}
 	}
 
@@ -68,12 +68,12 @@ class Yoast_Dashboard_Widget implements WPSEO_WordPress_Integration {
 	 * Adds dashboard widget to WordPress.
 	 */
 	public function add_dashboard_widget() {
-		add_filter( 'postbox_classes_dashboard_wpseo-dashboard-overview', array( $this, 'wpseo_dashboard_overview_class' ) );
+		add_filter( 'postbox_classes_dashboard_wpseo-dashboard-overview', [ $this, 'wpseo_dashboard_overview_class' ] );
 		wp_add_dashboard_widget(
 			'wpseo-dashboard-overview',
 			/* translators: %s is the plugin name */
 			sprintf( __( '%s Posts Overview', 'wordpress-seo' ), 'Yoast SEO' ),
-			array( $this, 'display_dashboard_widget' )
+			[ $this, 'display_dashboard_widget' ]
 		);
 	}
 
@@ -104,11 +104,10 @@ class Yoast_Dashboard_Widget implements WPSEO_WordPress_Integration {
 			return;
 		}
 
-		wp_localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'dashboard-widget', 'wpseoDashboardWidgetL10n', $this->localize_dashboard_script() );
-		$yoast_components_l10n = new WPSEO_Admin_Asset_Yoast_Components_L10n();
-		$yoast_components_l10n->localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'dashboard-widget' );
+		$this->asset_manager->localize_script( 'dashboard-widget', 'wpseoDashboardWidgetL10n', $this->localize_dashboard_script() );
 		$this->asset_manager->enqueue_script( 'dashboard-widget' );
 		$this->asset_manager->enqueue_style( 'wp-dashboard' );
+		$this->asset_manager->enqueue_style( 'monorepo' );
 	}
 
 	/**
@@ -117,24 +116,21 @@ class Yoast_Dashboard_Widget implements WPSEO_WordPress_Integration {
 	 * @return array The translated strings.
 	 */
 	public function localize_dashboard_script() {
-		return array(
-			'feed_header'      => sprintf(
+		$is_wincher_active = YoastSEO()->helpers->wincher->is_active();
+
+		return [
+			'feed_header'          => sprintf(
 				/* translators: %1$s resolves to Yoast.com */
 				__( 'Latest blog posts on %1$s', 'wordpress-seo' ),
 				'Yoast.com'
 			),
-			'feed_footer'      => __( 'Read more like this on our SEO blog', 'wordpress-seo' ),
-			'ryte_header'      => sprintf(
-				/* translators: %1$s expands to Ryte. */
-				__( 'Indexability check by %1$s', 'wordpress-seo' ),
-				'Ryte'
-			),
-			'ryteEnabled'      => ( WPSEO_Options::get( 'onpage_indexability' ) === true ),
-			'ryte_fetch'       => __( 'Fetch the current status', 'wordpress-seo' ),
-			'ryte_analyze'     => __( 'Analyze entire site', 'wordpress-seo' ),
-			'ryte_fetch_url'   => esc_attr( add_query_arg( 'wpseo-redo-onpage', '1' ) ) . '#wpseo-dashboard-overview',
-			'ryte_landing_url' => WPSEO_Shortlinker::get( 'https://yoa.st/rytelp' ),
-		);
+			'feed_footer'          => __( 'Read more like this on our SEO blog', 'wordpress-seo' ),
+			'wp_version'           => substr( $GLOBALS['wp_version'], 0, 3 ) . '-' . ( is_plugin_active( 'classic-editor/classic-editor.php' ) ? '1' : '0' ),
+			'php_version'          => PHP_MAJOR_VERSION . '.' . PHP_MINOR_VERSION,
+			'is_wincher_active'    => ( $is_wincher_active ) ? 1 : 0,
+			'wincher_is_logged_in' => ( $is_wincher_active ) ? YoastSEO()->helpers->wincher->login_status() : false,
+			'wincher_website_id'   => WPSEO_Options::get( 'wincher_website_id', '' ),
+		];
 	}
 
 	/**

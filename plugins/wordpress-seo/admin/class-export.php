@@ -29,7 +29,7 @@ class WPSEO_Export {
 	/**
 	 * Holds whether the export was a success.
 	 *
-	 * @var boolean
+	 * @var bool
 	 */
 	public $success;
 
@@ -51,7 +51,7 @@ class WPSEO_Export {
 			return;
 		}
 
-		echo '<p>';
+		echo '<p id="wpseo-settings-export-desc">';
 		printf(
 			/* translators: %1$s expands to Import settings */
 			esc_html__(
@@ -64,7 +64,9 @@ class WPSEO_Export {
 			)
 		);
 		echo '</p>';
-		echo '<textarea id="wpseo-export" rows="20" cols="100">' . esc_textarea( $this->export ) . '</textarea>';
+		/* translators: %1$s expands to Yoast SEO */
+		echo '<label for="wpseo-settings-export" class="yoast-inline-label">' . sprintf( __( 'Your %1$s settings:', 'wordpress-seo' ), 'Yoast SEO' ) . '</label><br />';
+		echo '<textarea id="wpseo-settings-export" rows="20" cols="100" aria-describedby="wpseo-settings-export-desc">' . esc_textarea( $this->export ) . '</textarea>';
 	}
 
 	/**
@@ -94,8 +96,8 @@ class WPSEO_Export {
 	/**
 	 * Writes a line to the export.
 	 *
-	 * @param string  $line          Line string.
-	 * @param boolean $newline_first Boolean flag whether to prepend with new line.
+	 * @param string $line          Line string.
+	 * @param bool   $newline_first Boolean flag whether to prepend with new line.
 	 */
 	private function write_line( $line, $newline_first = false ) {
 		if ( $newline_first ) {
@@ -143,33 +145,5 @@ class WPSEO_Export {
 			$val = '"' . $val . '"';
 		}
 		$this->write_line( $key . ' = ' . $val );
-	}
-
-	/* ********************* DEPRECATED METHODS ********************* */
-
-	/**
-	 * Returns true when the property error has a value.
-	 *
-	 * @deprecated 11.9 Obsolete since the export setting refactor in 9.2.
-	 *
-	 * @codeCoverageIgnore
-	 *
-	 * @return bool
-	 */
-	public function has_error() {
-		_deprecated_function( __METHOD__, 'WPSEO 11.9' );
-
-		return false;
-	}
-
-	/**
-	 * Sets the error hook, to display the error to the user.
-	 *
-	 * @deprecated 11.9 Obsolete since the export setting refactor in 9.2.
-	 *
-	 * @codeCoverageIgnore
-	 */
-	public function set_error_hook() {
-		_deprecated_function( __METHOD__, 'WPSEO 11.9' );
 	}
 }

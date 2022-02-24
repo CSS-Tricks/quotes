@@ -34,7 +34,7 @@ class Excludes {
 			$include = false;
 
 			if ( empty( $pattern ) ) {
-				break;
+				continue;
 			}
 
 			// If pattern starts with an exclamation mark remove exclamation mark and check if pattern matches current file path

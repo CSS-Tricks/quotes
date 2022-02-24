@@ -5,6 +5,8 @@
  * @package WPSEO\Admin
  */
 
+use Yoast\WP\SEO\Presenters\Admin\Alert_Presenter;
+
 /**
  * Class that handles the edit boxes on taxonomy edit pages.
  */
@@ -37,9 +39,9 @@ class WPSEO_Taxonomy {
 	public function __construct() {
 		$this->taxonomy = $this->get_taxonomy();
 
-		add_action( 'edit_term', array( $this, 'update_term' ), 99, 3 );
-		add_action( 'init', array( $this, 'custom_category_descriptions_allow_html' ) );
-		add_action( 'admin_init', array( $this, 'admin_init' ) );
+		add_action( 'edit_term', [ $this, 'update_term' ], 99, 3 );
+		add_action( 'init', [ $this, 'custom_category_descriptions_allow_html' ] );
+		add_action( 'admin_init', [ $this, 'admin_init' ] );
 
 		if ( self::is_term_overview( $GLOBALS['pagenow'] ) ) {
 			new WPSEO_Taxonomy_Columns();
@@ -61,8 +63,8 @@ class WPSEO_Taxonomy {
 
 		$this->insert_description_field_editor();
 
-		add_action( sanitize_text_field( $this->taxonomy ) . '_edit_form', array( $this, 'term_metabox' ), 90, 1 );
-		add_action( 'admin_enqueue_scripts', array( $this, 'admin_enqueue_scripts' ) );
+		add_action( sanitize_text_field( $this->taxonomy ) . '_edit_form', [ $this, 'term_metabox' ], 90, 1 );
+		add_action( 'admin_enqueue_scripts', [ $this, 'admin_enqueue_scripts' ] );
 	}
 
 	/**
@@ -71,11 +73,39 @@ class WPSEO_Taxonomy {
 	 * @param stdClass|WP_Term $term Term to show the edit boxes for.
 	 */
 	public function term_metabox( $term ) {
-		$tab = new WPSEO_Help_Center_Template_Variables_Tab();
-		$tab->register_hooks();
+		if ( WPSEO_Metabox::is_internet_explorer() ) {
+			$this->show_internet_explorer_notice();
+			return;
+		}
 
 		$metabox = new WPSEO_Taxonomy_Metabox( $this->taxonomy, $term );
 		$metabox->display();
+	}
+
+	/**
+	 * Renders the content for the internet explorer metabox.
+	 *
+	 * @return void
+	 */
+	private function show_internet_explorer_notice() {
+		$product_title = YoastSEO()->helpers->product->get_product_name();
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Reason: $product_title is hardcoded.
+		printf( '<div id="wpseo_meta" class="postbox yoast wpseo-taxonomy-metabox-postbox"><h2><span>%1$s</span></h2>', $product_title );
+		echo '<div class="inside">';
+
+		$content = sprintf(
+			/* translators: 1: Link start tag to the Firefox website, 2: Link start tag to the Chrome website, 3: Link start tag to the Edge website, 4: Link closing tag. */
+			esc_html__( 'The browser you are currently using is unfortunately rather dated. Since we strive to give you the best experience possible, we no longer support this browser. Instead, please use %1$sFirefox%4$s, %2$sChrome%4$s or %3$sMicrosoft Edge%4$s.', 'wordpress-seo' ),
+			'<a href="https://www.mozilla.org/firefox/new/">',
+			'<a href="https://www.google.com/chrome/">',
+			'<a href="https://www.microsoft.com/windows/microsoft-edge">',
+			'</a>'
+		);
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output escaped above.
+		echo new Alert_Presenter( $content );
+
+		echo '</div></div>';
 	}
 
 	/**
@@ -84,6 +114,7 @@ class WPSEO_Taxonomy {
 	 * @since 1.5.0
 	 */
 	public function admin_enqueue_scripts() {
+
 		$pagenow = $GLOBALS['pagenow'];
 
 		if ( ! ( self::is_term_edit( $pagenow ) || self::is_term_overview( $pagenow ) ) ) {
@@ -92,46 +123,18 @@ class WPSEO_Taxonomy {
 
 		$asset_manager = new WPSEO_Admin_Asset_Manager();
 		$asset_manager->enqueue_style( 'scoring' );
-
-		$tab = new WPSEO_Help_Center_Template_Variables_Tab();
-		$tab->enqueue_assets();
+		$asset_manager->enqueue_style( 'monorepo' );
 
 		$tag_id = filter_input( INPUT_GET, 'tag_ID' );
 		if (
-			self::is_term_edit( $pagenow ) &&
-			! empty( $tag_id )  // After we drop support for <4.5 this can be removed.
+			self::is_term_edit( $pagenow )
+			&& ! empty( $tag_id )  // After we drop support for <4.5 this can be removed.
 		) {
 			wp_enqueue_media(); // Enqueue files needed for upload functionality.
 
 			$asset_manager->enqueue_style( 'metabox-css' );
 			$asset_manager->enqueue_style( 'scoring' );
-			$asset_manager->enqueue_script( 'metabox' );
-			$asset_manager->enqueue_script( 'term-scraper' );
-			$asset_manager->enqueue_script( 'admin-script' );
-
-			wp_localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'term-scraper', 'wpseoTermScraperL10n', $this->localize_term_scraper_script() );
-			$yoast_components_l10n = new WPSEO_Admin_Asset_Yoast_Components_L10n();
-			$yoast_components_l10n->localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'term-scraper' );
-
-			$analysis_worker_location          = new WPSEO_Admin_Asset_Analysis_Worker_Location( $asset_manager->flatten_version( WPSEO_VERSION ) );
-			$used_keywords_assessment_location = new WPSEO_Admin_Asset_Analysis_Worker_Location( $asset_manager->flatten_version( WPSEO_VERSION ), 'used-keywords-assessment' );
-
-			$localization_data = array(
-				'url'                     => $analysis_worker_location->get_url(
-					$analysis_worker_location->get_asset(),
-					WPSEO_Admin_Asset::TYPE_JS
-				),
-				'keywords_assessment_url' => $used_keywords_assessment_location->get_url(
-					$used_keywords_assessment_location->get_asset(),
-					WPSEO_Admin_Asset::TYPE_JS
-				),
-				'log_level'               => WPSEO_Utils::get_analysis_worker_log_level(),
-			);
-			wp_localize_script(
-				WPSEO_Admin_Asset_Manager::PREFIX . 'term-scraper',
-				'wpseoAnalysisWorkerL10n',
-				$localization_data
-			);
+			$asset_manager->enqueue_script( 'term-edit' );
 
 			/**
 			 * Remove the emoji script as it is incompatible with both React and any
@@ -139,22 +142,39 @@ class WPSEO_Taxonomy {
 			 */
 			remove_action( 'admin_print_scripts', 'print_emoji_detection_script' );
 
-			wp_localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'replacevar-plugin', 'wpseoReplaceVarsL10n', $this->localize_replace_vars_script() );
-			wp_localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'metabox', 'wpseoSelect2Locale', WPSEO_Language_Utils::get_language( WPSEO_Language_Utils::get_user_locale() ) );
-			wp_localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'metabox', 'wpseoAdminL10n', WPSEO_Utils::get_admin_l10n() );
-			wp_localize_script( WPSEO_Admin_Asset_Manager::PREFIX . 'metabox', 'wpseoFeaturesL10n', WPSEO_Utils::retrieve_enabled_features() );
+			$asset_manager->localize_script( 'term-edit', 'wpseoAdminL10n', WPSEO_Utils::get_admin_l10n() );
 
-			$asset_manager->enqueue_script( 'admin-media' );
-
-			wp_localize_script(
-				WPSEO_Admin_Asset_Manager::PREFIX . 'admin-media',
-				'wpseoMediaL10n',
-				array( 'choose_image' => __( 'Use Image', 'wordpress-seo' ) )
-			);
+			$script_data = [
+				'analysis'         => [
+					'plugins' => [
+						'replaceVars' => [
+							'no_parent_text'           => __( '(no parent)', 'wordpress-seo' ),
+							'replace_vars'             => $this->get_replace_vars(),
+							'recommended_replace_vars' => $this->get_recommended_replace_vars(),
+							'scope'                    => $this->determine_scope(),
+						],
+					],
+					'worker'  => [
+						'url'                     => YoastSEO()->helpers->asset->get_asset_url( 'yoast-seo-analysis-worker' ),
+						'dependencies'            => YoastSEO()->helpers->asset->get_dependency_urls_by_handle( 'yoast-seo-analysis-worker' ),
+						'keywords_assessment_url' => YoastSEO()->helpers->asset->get_asset_url( 'yoast-seo-used-keywords-assessment' ),
+						'log_level'               => WPSEO_Utils::get_analysis_worker_log_level(),
+					],
+				],
+				'media'            => [
+					// @todo replace this translation with JavaScript translations.
+					'choose_image' => __( 'Use Image', 'wordpress-seo' ),
+				],
+				'metabox'          => $this->localize_term_scraper_script(),
+				'userLanguageCode' => WPSEO_Language_Utils::get_language( \get_user_locale() ),
+				'isTerm'           => true,
+			];
+			$asset_manager->localize_script( 'term-edit', 'wpseoScriptData', $script_data );
+			$asset_manager->enqueue_user_language_script();
 		}
 
 		if ( self::is_term_overview( $pagenow ) ) {
-			$asset_manager->enqueue_script( 'edit-page-script' );
+			$asset_manager->enqueue_script( 'edit-page' );
 		}
 	}
 
@@ -166,8 +186,13 @@ class WPSEO_Taxonomy {
 	 * @param string $taxonomy The taxonomy the term belongs to.
 	 */
 	public function update_term( $term_id, $tt_id, $taxonomy ) {
+		// Bail if this is a multisite installation and the site has been switched.
+		if ( is_multisite() && ms_is_switched() ) {
+			return;
+		}
+
 		/* Create post array with only our values. */
-		$new_meta_data = array();
+		$new_meta_data = [];
 		foreach ( WPSEO_Taxonomy_Meta::$defaults_per_term as $key => $default ) {
 			$posted_value = filter_input( INPUT_POST, $key );
 			if ( isset( $posted_value ) && $posted_value !== false ) {
@@ -192,11 +217,11 @@ class WPSEO_Taxonomy {
 	 * @return bool Whether the given meta value key is disabled.
 	 */
 	public function is_meta_value_disabled( $key ) {
-		if ( 'wpseo_linkdex' === $key && ! $this->analysis_seo->is_enabled() ) {
+		if ( $key === 'wpseo_linkdex' && ! $this->analysis_seo->is_enabled() ) {
 			return true;
 		}
 
-		if ( 'wpseo_content_score' === $key && ! $this->analysis_readability->is_enabled() ) {
+		if ( $key === 'wpseo_content_score' && ! $this->analysis_readability->is_enabled() ) {
 			return true;
 		}
 
@@ -204,23 +229,13 @@ class WPSEO_Taxonomy {
 	}
 
 	/**
-	 * Allows HTML in descriptions.
+	 * Allows post-kses-filtered HTML in term descriptions.
 	 */
 	public function custom_category_descriptions_allow_html() {
-		$filters = array(
-			'pre_term_description',
-			'pre_link_description',
-			'pre_link_notes',
-			'pre_user_description',
-		);
-
-		foreach ( $filters as $filter ) {
-			remove_filter( $filter, 'wp_filter_kses' );
-			if ( ! current_user_can( 'unfiltered_html' ) ) {
-				add_filter( $filter, 'wp_filter_post_kses' );
-			}
-		}
 		remove_filter( 'term_description', 'wp_kses_data' );
+		remove_filter( 'pre_term_description', 'wp_filter_kses' );
+		add_filter( 'term_description', 'wp_kses_post' );
+		add_filter( 'pre_term_description', 'wp_filter_post_kses' );
 	}
 
 	/**
@@ -249,14 +264,16 @@ class WPSEO_Taxonomy {
 
 	/**
 	 * Pass some variables to js for replacing variables.
+	 *
+	 * @return array
 	 */
 	public function localize_replace_vars_script() {
-		return array(
+		return [
 			'no_parent_text'           => __( '(no parent)', 'wordpress-seo' ),
 			'replace_vars'             => $this->get_replace_vars(),
 			'recommended_replace_vars' => $this->get_recommended_replace_vars(),
 			'scope'                    => $this->determine_scope(),
-		);
+		];
 	}
 
 	/**
@@ -287,7 +304,7 @@ class WPSEO_Taxonomy {
 	 * @return bool
 	 */
 	public static function is_term_overview( $page ) {
-		return 'edit-tags.php' === $page;
+		return $page === 'edit-tags.php';
 	}
 
 	/**
@@ -298,7 +315,19 @@ class WPSEO_Taxonomy {
 	 * @return bool
 	 */
 	public static function is_term_edit( $page ) {
-		return 'term.php' === $page;
+		return $page === 'term.php';
+	}
+
+	/**
+	 * Function to get the labels for the current taxonomy.
+	 *
+	 * @return object Labels for the current taxonomy.
+	 */
+	public static function get_labels() {
+		$term     = filter_input( INPUT_GET, 'taxonomy', FILTER_DEFAULT, [ 'options' => [ 'default' => '' ] ] );
+		$taxonomy = get_taxonomy( $term );
+
+		return $taxonomy->labels;
 	}
 
 	/**
@@ -319,7 +348,7 @@ class WPSEO_Taxonomy {
 	 * @return string
 	 */
 	private function get_taxonomy() {
-		return filter_input( INPUT_GET, 'taxonomy', FILTER_DEFAULT, array( 'options' => array( 'default' => '' ) ) );
+		return filter_input( INPUT_GET, 'taxonomy', FILTER_DEFAULT, [ 'options' => [ 'default' => '' ] ] );
 	}
 
 	/**
@@ -331,9 +360,9 @@ class WPSEO_Taxonomy {
 		$term_id = filter_input( INPUT_GET, 'tag_ID' );
 		$term    = get_term_by( 'id', $term_id, $this->get_taxonomy() );
 
-		$cached_replacement_vars = array();
+		$cached_replacement_vars = [];
 
-		$vars_to_cache = array(
+		$vars_to_cache = [
 			'date',
 			'id',
 			'sitename',
@@ -342,11 +371,12 @@ class WPSEO_Taxonomy {
 			'page',
 			'term_title',
 			'term_description',
+			'term_hierarchy',
 			'category_description',
 			'tag_description',
 			'searchphrase',
 			'currentyear',
-		);
+		];
 
 		foreach ( $vars_to_cache as $var ) {
 			$cached_replacement_vars[ $var ] = wpseo_replace_vars( '%%' . $var . '%%', $term );
@@ -375,33 +405,14 @@ class WPSEO_Taxonomy {
 	 * Needs a hook that runs before the description field. Prior to WP version 4.5 we need to use edit_form as
 	 * term_edit_form_top was introduced in WP 4.5. This can be removed after <4.5 is no longer supported.
 	 *
-	 * @return {void}
+	 * @return void
 	 */
 	private function insert_description_field_editor() {
 		if ( version_compare( $GLOBALS['wp_version'], '4.5', '<' ) ) {
-			add_action( "{$this->taxonomy}_edit_form", array( $this, 'custom_category_description_editor' ) );
+			add_action( "{$this->taxonomy}_edit_form", [ $this, 'custom_category_description_editor' ] );
 			return;
 		}
 
-		add_action( "{$this->taxonomy}_term_edit_form_top", array( $this, 'custom_category_description_editor' ) );
-	}
-
-	/* ********************* DEPRECATED METHODS ********************* */
-
-	/**
-	 * Adds shortcode support to category descriptions.
-	 *
-	 * @deprecated 7.9.0
-	 * @codeCoverageIgnore
-	 *
-	 * @param string $desc String to add shortcodes in.
-	 *
-	 * @return string Content with shortcodes filtered out.
-	 */
-	public function custom_category_descriptions_add_shortcode_support( $desc ) {
-		_deprecated_function( __FUNCTION__, 'WPSEO 7.9.0', 'WPSEO_Frontend::custom_category_descriptions_add_shortcode_support' );
-
-		$frontend = WPSEO_Frontend::get_instance();
-		return $frontend->custom_category_descriptions_add_shortcode_support( $desc );
+		add_action( "{$this->taxonomy}_term_edit_form_top", [ $this, 'custom_category_description_editor' ] );
 	}
 }
