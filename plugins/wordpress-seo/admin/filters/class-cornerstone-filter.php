@@ -25,8 +25,8 @@ class WPSEO_Cornerstone_Filter extends WPSEO_Abstract_Post_Filter {
 	public function register_hooks() {
 		parent::register_hooks();
 
-		add_filter( 'wpseo_cornerstone_post_types', array( 'WPSEO_Post_Type', 'filter_attachment_post_type' ) );
-		add_filter( 'wpseo_cornerstone_post_types', array( $this, 'filter_metabox_disabled' ) );
+		add_filter( 'wpseo_cornerstone_post_types', [ 'WPSEO_Post_Type', 'filter_attachment_post_type' ] );
+		add_filter( 'wpseo_cornerstone_post_types', [ $this, 'filter_metabox_disabled' ] );
 	}
 
 	/**
@@ -49,8 +49,8 @@ class WPSEO_Cornerstone_Filter extends WPSEO_Abstract_Post_Filter {
 		if ( $this->is_filter_active() ) {
 			global $wpdb;
 
-			$where .= sprintf(
-				' AND ' . $wpdb->posts . '.ID IN( SELECT post_id FROM ' . $wpdb->postmeta . ' WHERE meta_key = "%s" AND meta_value = "1" ) ',
+			$where .= $wpdb->prepare(
+				" AND {$wpdb->posts}.ID IN ( SELECT post_id FROM {$wpdb->postmeta} WHERE meta_key = %s AND meta_value = '1' ) ",
 				WPSEO_Meta::$meta_prefix . self::META_NAME
 			);
 		}
@@ -66,7 +66,7 @@ class WPSEO_Cornerstone_Filter extends WPSEO_Abstract_Post_Filter {
 	 * @return array The filtered post types.
 	 */
 	public function filter_metabox_disabled( $post_types ) {
-		$filtered_post_types = array();
+		$filtered_post_types = [];
 		foreach ( $post_types as $post_type_key => $post_type ) {
 			if ( ! WPSEO_Post_Type::has_metabox_enabled( $post_type_key ) ) {
 				continue;
@@ -90,7 +90,7 @@ class WPSEO_Cornerstone_Filter extends WPSEO_Abstract_Post_Filter {
 	/**
 	 * Returns a text explaining this filter.
 	 *
-	 * @return string The explanation.
+	 * @return string|null The explanation.
 	 */
 	protected function get_explanation() {
 		$post_type_object = get_post_type_object( $this->get_current_post_type() );
@@ -111,19 +111,18 @@ class WPSEO_Cornerstone_Filter extends WPSEO_Abstract_Post_Filter {
 	/**
 	 * Returns the total amount of articles marked as cornerstone content.
 	 *
-	 * @return integer
+	 * @return int
 	 */
 	protected function get_post_total() {
 		global $wpdb;
 
 		return (int) $wpdb->get_var(
 			$wpdb->prepare(
-				'
-				SELECT COUNT( 1 )
-				FROM ' . $wpdb->postmeta . '
-				WHERE post_id IN( SELECT ID FROM ' . $wpdb->posts . ' WHERE post_type = %s ) &&
-				meta_value = "1" AND meta_key = %s
-				',
+				"SELECT COUNT( 1 )
+					FROM {$wpdb->postmeta}
+					WHERE post_id IN( SELECT ID FROM {$wpdb->posts} WHERE post_type = %s ) AND
+					meta_key = %s AND meta_value = '1'
+				",
 				$this->get_current_post_type(),
 				WPSEO_Meta::$meta_prefix . self::META_NAME
 			)
@@ -143,7 +142,7 @@ class WPSEO_Cornerstone_Filter extends WPSEO_Abstract_Post_Filter {
 		 */
 		$post_types = apply_filters( 'wpseo_cornerstone_post_types', parent::get_post_types() );
 		if ( ! is_array( $post_types ) ) {
-			return array();
+			return [];
 		}
 
 		return $post_types;

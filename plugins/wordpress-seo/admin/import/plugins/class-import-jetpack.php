@@ -27,15 +27,14 @@ class WPSEO_Import_Jetpack_SEO extends WPSEO_Plugin_Importer {
 	protected $meta_key = 'advanced_seo_description';
 
 	/**
-	 *  Array of meta keys to detect and import.
+	 * Array of meta keys to detect and import.
 	 *
 	 * @var array
 	 */
-	protected $clone_keys = array(
-		array(
+	protected $clone_keys = [
+		[
 			'old_key' => 'advanced_seo_description',
 			'new_key' => 'metadesc',
-		),
-	);
-
+		],
+	];
 }

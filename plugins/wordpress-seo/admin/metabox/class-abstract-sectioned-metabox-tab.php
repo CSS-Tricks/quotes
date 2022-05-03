@@ -53,12 +53,12 @@ abstract class WPSEO_Abstract_Metabox_Tab_With_Sections implements WPSEO_Metabox
 	 * @param string $link_content The text content of the section link.
 	 * @param array  $options      Optional link attributes.
 	 */
-	public function __construct( $name, $link_content, array $options = array() ) {
-		$default_options = array(
+	public function __construct( $name, $link_content, array $options = [] ) {
+		$default_options = [
 			'link_title'      => '',
 			'link_class'      => '',
 			'link_aria_label' => '',
-		);
+		];
 
 		$options = array_merge( $default_options, $options );
 
@@ -79,8 +79,8 @@ abstract class WPSEO_Abstract_Metabox_Tab_With_Sections implements WPSEO_Metabox
 				'<li role="presentation"><a role="tab" href="#wpseo-meta-section-%1$s" id="wpseo-meta-tab-%1$s" aria-controls="wpseo-meta-section-%1$s" class="wpseo-meta-section-link %2$s"%3$s%4$s>%5$s</a></li>',
 				esc_attr( $this->name ),
 				esc_attr( $this->link_class ),
-				( '' !== $this->link_title ) ? ' title="' . esc_attr( $this->link_title ) . '"' : '',
-				( '' !== $this->link_aria_label ) ? ' aria-label="' . esc_attr( $this->link_aria_label ) . '"' : '',
+				( $this->link_title !== '' ) ? ' title="' . esc_attr( $this->link_title ) . '"' : '',
+				( $this->link_aria_label !== '' ) ? ' aria-label="' . esc_attr( $this->link_aria_label ) . '"' : '',
 				$this->link_content
 			);
 		}

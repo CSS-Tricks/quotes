@@ -22,7 +22,7 @@ class WPSEO_Option_Tabs {
 	 *
 	 * @var array
 	 */
-	private $tabs = array();
+	private $tabs = [];
 
 	/**
 	 * Name of the active tab.
@@ -71,14 +71,14 @@ class WPSEO_Option_Tabs {
 	/**
 	 * Get active tab.
 	 *
-	 * @return null|WPSEO_Option_Tab Get the active tab.
+	 * @return WPSEO_Option_Tab|null Get the active tab.
 	 */
 	public function get_active_tab() {
 		if ( empty( $this->active_tab ) ) {
 			return null;
 		}
 
-		$active_tabs = array_filter( $this->tabs, array( $this, 'is_active_tab' ) );
+		$active_tabs = array_filter( $this->tabs, [ $this, 'is_active_tab' ] );
 		if ( ! empty( $active_tabs ) ) {
 			$active_tabs = array_values( $active_tabs );
 			if ( count( $active_tabs ) === 1 ) {

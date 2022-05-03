@@ -36,7 +36,7 @@ class WPSEO_Import_Squirrly extends WPSEO_Plugin_Importer {
 	 *
 	 * @var array
 	 */
-	protected $seo_field_keys = array(
+	protected $seo_field_keys = [
 		'noindex'        => 'meta-robots-noindex',
 		'nofollow'       => 'meta-robots-nofollow',
 		'title'          => 'title',
@@ -50,7 +50,7 @@ class WPSEO_Import_Squirrly extends WPSEO_Plugin_Importer {
 		'og_description' => 'opengraph-description',
 		'og_media'       => 'opengraph-image',
 		'focuskw'        => 'focuskw',
-	);
+	];
 
 	/**
 	 * WPSEO_Import_Squirrly constructor.
@@ -187,11 +187,16 @@ class WPSEO_Import_Squirrly extends WPSEO_Plugin_Importer {
 		if ( ! is_numeric( $post_identifier ) ) {
 			$query_where = 'URL = %s';
 		}
+
+		$replacements = [
+			get_current_blog_id(),
+			$post_identifier,
+		];
+
 		$data = $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT seo FROM {$this->table_name} WHERE blog_id = %d AND " . $query_where,
-				get_current_blog_id(),
-				$post_identifier
+				$replacements
 			)
 		);
 		if ( ! $data || is_wp_error( $data ) ) {

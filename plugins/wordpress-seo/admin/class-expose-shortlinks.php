@@ -15,10 +15,20 @@ class WPSEO_Expose_Shortlinks implements WPSEO_WordPress_Integration {
 	 *
 	 * @var array
 	 */
-	private $shortlinks = array(
+	private $shortlinks = [
+		'shortlinks.advanced.allow_search_engines'                  => 'https://yoa.st/allow-search-engines',
+		'shortlinks.advanced.follow_links'                          => 'https://yoa.st/follow-links',
+		'shortlinks.advanced.meta_robots'                           => 'https://yoa.st/meta-robots-advanced',
+		'shortlinks.advanced.breadcrumbs_title'                     => 'https://yoa.st/breadcrumbs-title',
+		'shortlinks.metabox.schema.explanation'                     => 'https://yoa.st/400',
+		'shortlinks.metabox.schema.page_type'                       => 'https://yoa.st/402',
+		'shortlinks.sidebar.schema.explanation'                     => 'https://yoa.st/401',
+		'shortlinks.sidebar.schema.page_type'                       => 'https://yoa.st/403',
 		'shortlinks.focus_keyword_info'                             => 'https://yoa.st/focus-keyword',
+		'shortlinks.nofollow_sponsored'                             => 'https://yoa.st/nofollow-sponsored',
 		'shortlinks.snippet_preview_info'                           => 'https://yoa.st/snippet-preview',
 		'shortlinks.cornerstone_content_info'                       => 'https://yoa.st/1i9',
+		'shortlinks.upsell.social_previews'                         => 'https://yoa.st/social-preview-cta',
 		'shortlinks.upsell.sidebar.focus_keyword_synonyms_link'     => 'https://yoa.st/textlink-synonyms-popup-sidebar',
 		'shortlinks.upsell.sidebar.focus_keyword_synonyms_button'   => 'https://yoa.st/keyword-synonyms-popup-sidebar',
 		'shortlinks.upsell.sidebar.focus_keyword_additional_link'   => 'https://yoa.st/textlink-keywords-popup-sidebar',
@@ -37,7 +47,12 @@ class WPSEO_Expose_Shortlinks implements WPSEO_WordPress_Integration {
 		'shortlinks.activate_premium_info'                          => 'https://yoa.st/activate-subscription',
 		'shortlinks.upsell.sidebar.morphology_upsell_metabox'       => 'https://yoa.st/morphology-upsell-metabox',
 		'shortlinks.upsell.sidebar.morphology_upsell_sidebar'       => 'https://yoa.st/morphology-upsell-sidebar',
-	);
+		'shortlinks.semrush.volume_help'                            => 'https://yoa.st/3-v',
+		'shortlinks.semrush.trend_help'                             => 'https://yoa.st/3-v',
+		'shortlinks.semrush.prices'                                 => 'https://yoa.st/semrush-prices',
+		'shortlinks.semrush.premium_landing_page'                   => 'https://yoa.st/413',
+		'shortlinks.wincher.seo_performance'                        => 'https://yoa.st/wincher-integration',
+	];
 
 	/**
 	 * Registers all hooks to WordPress.
@@ -45,7 +60,7 @@ class WPSEO_Expose_Shortlinks implements WPSEO_WordPress_Integration {
 	 * @return void
 	 */
 	public function register_hooks() {
-		add_filter( 'wpseo_admin_l10n', array( $this, 'expose_shortlinks' ) );
+		add_filter( 'wpseo_admin_l10n', [ $this, 'expose_shortlinks' ] );
 	}
 
 	/**

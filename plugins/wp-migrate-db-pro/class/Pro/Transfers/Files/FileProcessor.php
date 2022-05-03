@@ -3,201 +3,338 @@
 namespace DeliciousBrains\WPMDB\Pro\Transfers\Files;
 
 use DeliciousBrains\WPMDB\Common\Filesystem\Filesystem;
+use DeliciousBrains\WPMDB\Common\Filesystem\RecursiveScanner;
+use DeliciousBrains\WPMDB\Common\Http\Http;
 
 /**
  * Class FileProcessor
  *
  * @package WPMDB\Transfers\Files
  */
-class FileProcessor {
+class FileProcessor
+{
 
-	public $filesystem;
+    public $filesystem;
+    /**
+     * @var Http
+     */
+    private $http;
 
-	/**
-	 * FileProcessor constructor.
-	 *
-	 * @param Filesystem $filesystem
-	 */
-	public function __construct(
-		Filesystem $filesystem
-	) {
-		$this->filesystem = $filesystem;
-	}
+    /**
+     * @var RecursiveScanner
+     */
+    private $recursive_scanner;
 
-	/**
-	 * Given an array of directory paths, loops over each dir and returns an array of files and metadata
-	 *
-	 * @param $directories
-	 * @param $abs_path
-	 *
-	 * @return array
-	 */
-	public function get_local_files( $directories, $abs_path, $excludes = array(), $stage ) {
-		$count          = 0;
-		$total_size     = 0;
-		$files          = [];
-		$manifest       = [];
-		$is_single      = false;
-		$filtered_files = [];
+    /**
+     * FileProcessor constructor.
+     *
+     * @param Filesystem $filesystem
+     * @param Http       $http
+     */
+    public function __construct(
+        Filesystem $filesystem,
+        Http $http,
+        RecursiveScanner $recursive_scanner
+    ) {
+        $this->filesystem = $filesystem;
+        $this->http       = $http;
+        $this->recursive_scanner = $recursive_scanner;
+    }
 
-		foreach ( $directories as $directory ) {
-			$file_size = 0;
+    /**
+     * Given an array of directory paths, loops over each dir and returns an array of files and metadata
+     *
+     * @param array $directories
+     * @param string $abs_path
+     * @param array $excludes
+     * @param string $stage
+     * @param string|null $date
+     * @param string|null $timezone
+     * @param string|null $intent
+     *
+     * @return array
+     */
+    public function get_local_files($directories, $abs_path = '', $excludes = array(), $stage = '', $date = null, $timezone = 'UTC', $intent = null)
+    {
+        $count      = 0;
+        $total_size = 0;
+        $files      = [];
+        $manifest   = [];
 
-			if ( ! $this->filesystem->file_exists( $directory ) ) {
-				continue;
-			}
+        $scan_completed = false;
+        $directories = $this->recursive_scanner->unset_manifest_file($directories);
+        $dirs_count = count($directories);
+        if ($dirs_count === 0 ) {
+            $scan_completed = true;
+        }
 
-			if ( ! $this->filesystem->is_dir( $directory ) ) {
-				$is_single = true;
-			}
+        $this->recursive_scanner->set_excludes($excludes);
+        $this->recursive_scanner->set_intent($intent);
 
-			$nice_name = $this->get_item_nice_name( $stage, $directory, $is_single );
+        foreach ($directories as $directory => $current_dir) {
+            $file_size          = 0;
+            $is_single          = false;
+            $files_in_directory = [];
+            $processed_files = [];
 
-			// Plugins that are single files need to have their meta data added individually
-			if ( $is_single ) {
-				$files_in_directory[] = $directory;
-				list( $file_size, $filtered_files, $files, $count ) = $this->handle_single_file_plugin( $abs_path, $directory, $file_size, $files, $count, $nice_name );
-				$total_size += $file_size;
-				$is_single  = false;
-				continue;
-			}
+            if (!$this->filesystem->file_exists($current_dir)) {
+                if($directory >= $dirs_count-1) {
+                    $scan_completed = true;
+                }
+                continue;
+            }
 
-			$files_in_directory = $this->get_files_by_path( $directory );
+            if (!$this->filesystem->is_dir($current_dir)) {
+                $is_single = true;
+            }
 
-			foreach ( $files_in_directory as $key => $file ) {
-				if ( ! $this->check_file_against_excludes( $file, $excludes ) ) {
-					unset( $files_in_directory[ $key ] );
-					continue;
-				}
+            $nice_name = $this->get_item_nice_name($stage, $current_dir, $is_single);
 
-				$file_size  += $file['size'];
-				$total_size += $file['size'];
-				$manifest[] = $file['subpath'];
-			}
+            if ($is_single) {
+                $basename                      = wp_basename($current_dir);
+                $file_info                     = $this->filesystem->get_file_info(wp_basename($current_dir), $abs_path);
+                $files_in_directory[$basename] = $file_info;
+            } else {
+                $files_in_directory = $this->get_files_by_path($current_dir);
+            }
 
-			$filtered_files      = $this->filter_folder_data( $files_in_directory, $file_size, $directory, $nice_name );
-			$files[ $directory ] = $filtered_files;
-		}
+            if (is_wp_error($files_in_directory)) {
+                return $files_in_directory;
+            }
 
-		$count += \count( $files_in_directory );
+            $files_count = count($files_in_directory);
+            $files_keys  = array_keys($files_in_directory);
+            for ($file_index = 0; $file_index < $files_count; $file_index++) {
+                $file_key      = $files_keys[$file_index];
+                $file          = $files_in_directory[$file_key];
+                $not_excluded = $this->check_file_against_excludes($file, $excludes);
+                $date_compare = true;
 
-		$return = [
-			'meta'  => [
-				'count'    => $count,
-				'size'     => $total_size,
-				'manifest' => $manifest,
-			],
-			'files' => $files,
-		];
+                if ($not_excluded) {
+                    $date_compare = $this->check_file_against_date($file, $date, $timezone);
+                }
 
-		return $return;
-	}
+                if (is_wp_error($date_compare)) {
+                    return $date_compare;
+                }
 
-	/**
-	 * @param string $stage
-	 * @param array  $directory
-	 * @param bool   $is_single
-	 *
-	 * @return string
-	 */
-	public function get_item_nice_name( $stage, $directory, $is_single = false ) {
-		$directory_info = 'themes' === $stage ? wp_get_themes() : get_plugins();
-		$exploded       = explode( DIRECTORY_SEPARATOR, $directory );
-		$directory_key  = $exploded[ count( $exploded ) - 1 ];
-		$nice_name      = '';
+                if (
+                    $not_excluded === false ||
+                    $date_compare === false
+                ) {
+                    unset($files_in_directory[$file_key]);
+                    continue;
+                }
 
-		if ( 'themes' === $stage ) {
-			if ( isset( $directory_info[ $directory_key ] ) ) {
-				$nice_name = html_entity_decode( $directory_info[ $directory_key ]->Name );
-			}
-		} else {
-			foreach ( $directory_info AS $key => $info ) {
-				$pattern = '/^' . $directory_key;
+                //Check for manifest files, don't want those suckers
+                if (preg_match("/(([a-z0-9]+-){5})manifest/", $file_key)) {
+                    unset($files_in_directory[$file_key]);
+                    continue;
+                }
 
-				if ( ! $is_single ) {
-					$pattern .= '(\/|\\\)'; // Account for Windows slashes
-				}
+                $file_size        += $file['size'];
+                $total_size      += $file['size'];
+                $manifest[]       = $file['subpath'];
+                $processed_files[] = $file;
+                $count++;
+            }
 
-				$pattern .= '/';
+            $filtered_files = $this->filter_folder_data($processed_files, $file_size, $current_dir, $nice_name);
 
-				if ( 1 === preg_match( $pattern, $key ) ) {
-					$nice_name = html_entity_decode( $info['Name'] );
-					break;
-				}
-			}
-		}
+            if (!empty($filtered_files)) {
+                $files[$current_dir] = $filtered_files;
+            }
 
-		return $nice_name;
-	}
+            if($this->recursive_scanner->is_enabled()) {
+                if ($this->recursive_scanner->reached_bottleneck() || !$this->recursive_scanner->is_scan_complete($current_dir)) {
+                    break;
+                }
+            }
 
-	/**
-	 * @param string $abs_path
-	 * @param string $directory
-	 * @param int    $size
-	 * @param array  $files
-	 * @param int    $count
-	 *
-	 * @return array
-	 */
-	public function handle_single_file_plugin( $abs_path, $directory, $size, $files, $count, $nice_name ) {
-		$file_info = $this->filesystem->get_file_info( str_replace( $this->filesystem->slash_one_direction( $abs_path . DIRECTORY_SEPARATOR ), '', $directory ), $abs_path );
-		$size      += $file_info['size'];
+            if($directory >= $dirs_count-1) {
+                $scan_completed = true;
+            }
+        }
 
-		$filtered_files                            = $this->filter_folder_data( [ $file_info ], $size, $directory, $nice_name );
-		$files[ $directory ][ $file_info['name'] ] = $filtered_files[0];
-		++ $count;
+        $return = [
+            'meta'  => [
+                'count'          => $count,
+                'size'           => $total_size,
+                'manifest'       => $manifest,
+                'scan_completed' => $scan_completed
+            ],
+            'files' => $files,
+        ];
 
-		return array( $size, $filtered_files, $files, $count );
-	}
+        return $return;
+    }
 
-	/**
-	 * @param array $files_in_directory
-	 * @param int   $size
-	 *
-	 * @return array
-	 */
-	public function filter_folder_data( $files_in_directory, $size, $folder_path, $nice_name ) {
-		$filtered_files = [];
+    /**
+     * @param string $stage
+     * @param array  $directory
+     * @param bool   $is_single
+     *
+     * @return string
+     */
+    public function get_item_nice_name($stage, $directory, $is_single = false)
+    {
+        $directory_info = 'themes' === $stage ? wp_get_themes() : get_plugins();
+        $exploded       = explode(DIRECTORY_SEPARATOR, $directory);
+        $directory_key  = $exploded[count($exploded) - 1];
+        $nice_name      = '';
 
-		foreach ( $files_in_directory as $key => $files ) {
-			$filtered_files[ $key ]                    = $files;
-			$filtered_files[ $key ]['folder_size']     = $size;
-			$filtered_files[ $key ]['folder_abs_path'] = $folder_path;
-			$filtered_files[ $key ]['nice_name']       = $nice_name;
-		}
+        if ('media_files' === $stage) {
+            return $directory_key;
+        }
 
-		return $filtered_files;
-	}
+        if ('themes' === $stage) {
+            if (isset($directory_info[$directory_key])) {
+                $nice_name = html_entity_decode($directory_info[$directory_key]->Name);
+            }
+        } else {
+            foreach ($directory_info as $key => $info) {
+                $pattern = '/^' . $directory_key;
 
-	/**
-	 * @param string $directory
-	 *
-	 * @return array|bool
-	 */
-	public function get_files_by_path( $directory ) {
-		// @TODO potentially filter this list
-		$files = $this->filesystem->scandir_recursive( $directory );
+                if (!$is_single) {
+                    $pattern .= '(\/|\\\)'; // Account for Windows slashes
+                }
 
-		return $files;
-	}
+                $pattern .= '/';
 
-	/**
-	 * @param array  $file
-	 * @param string $excludes
-	 *
-	 * @return bool
-	 */
-	public function check_file_against_excludes( $file, $excludes ) {
-		if ( empty( $excludes ) ) {
-			return true;
-		}
+                if (1 === preg_match($pattern, $key)) {
+                    $nice_name = html_entity_decode($info['Name']);
+                    break;
+                }
+            }
+        }
 
-		$testMatch = Excludes::shouldExcludeFile( $file['absolute_path'], $excludes );
+        return $nice_name;
+    }
 
-		if ( ! empty( $testMatch['exclude'] ) ) {
-			return false;
-		}
+    /**
+     * @param string $abs_path
+     * @param string $filename
+     * @param int    $size
+     * @param array  $files
+     * @param int    $count
+     *
+     * @return array
+     */
+    public function handle_single_file($abs_path, $filename, $size, $files, $count, $nice_name, $fix_path = false)
+    {
+        $file = wp_basename($filename);
 
-		return true;
-	}
+        $file_info = $this->filesystem->get_file_info($file, $abs_path);
+
+        $size += $file_info['size'];
+
+        $filtered_files                       = $this->filter_folder_data([$file_info], $size, $filename, $nice_name);
+        $files[$filename][$file_info['name']] = $filtered_files[0];
+        ++$count;
+
+        return array($size, $filtered_files, $files, $count);
+    }
+
+    /**
+     * @param array $files_in_directory
+     * @param int   $size
+     *
+     * @return array
+     */
+    public function filter_folder_data($files_in_directory, $size, $folder_path, $nice_name)
+    {
+        $filtered_files = [];
+
+        foreach ($files_in_directory as $key => $files) {
+            $filtered_files[$key]                    = $files;
+            $filtered_files[$key]['folder_size']     = $size;
+            $filtered_files[$key]['folder_abs_path'] = $folder_path;
+            $filtered_files[$key]['nice_name']       = $nice_name;
+        }
+
+        return $filtered_files;
+    }
+
+    /**
+     * @param string $directory
+     *
+     * @return array|bool
+     */
+    public function get_files_by_path($directory)
+    {
+        // @TODO potentially filter this list
+        if($this->recursive_scanner->is_enabled()) {
+            $this->recursive_scanner->initialize($directory);
+            $files = $this->recursive_scanner->scan($directory);
+        } else {
+            $files = $this->filesystem->scandir_recursive($directory);
+        }
+
+        if (is_wp_error($files)) {
+            return $this->http->end_ajax($files);
+        }
+
+        return $files;
+    }
+
+    /**
+     * @param array $file
+     * @param array $excludes
+     *
+     * @return bool
+     */
+    public function check_file_against_excludes($file, $excludes)
+    {
+        if (empty($excludes)) {
+            return true;
+        }
+
+        $testMatch = Excludes::shouldExcludeFile($file['absolute_path'], $excludes);
+
+        if (!empty($testMatch['exclude'])) {
+            return false;
+        }
+
+        return true;
+    }
+
+
+    /**
+     * Compare file modified date against a date and timezone
+     *
+     * Debug: $date = $date->format('Y-m-d H:i:sP');
+     *
+     * @param $file
+     * @param $date
+     * @param $clientTimezone
+     *
+     * @return bool
+     */
+    public function check_file_against_date($file, $date, $clientTimezone)
+    {
+        if (is_null($date)) {
+            return true;
+        }
+
+        $serverdate     = new \DateTime();
+        $serverTimeZone = $serverdate->getTimezone();
+
+        $date = new \DateTime($date, new \DateTimeZone($clientTimezone));// Create client date object with associated timezone so we can compare against filemtime() which uses the server timezone
+
+        $date->setTimezone(new \DateTimeZone($serverTimeZone->getName()));
+        $abs_path = $file['absolute_path'];
+
+        if (!file_exists($abs_path)) {
+            return $this->http->end_ajax(new \WP_Error('wpmdb-file-does-not-exist', sprintf(__('File %s does not exist', 'wp-migrate-db'), $abs_path)));
+        }
+
+        $timestamp = $date->getTimestamp();
+        $fileMTime = filemtime($abs_path);
+
+        if ($fileMTime <= $timestamp) {
+            return false;
+        }
+
+        return true;
+    }
 }

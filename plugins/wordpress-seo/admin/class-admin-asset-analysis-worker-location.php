@@ -13,14 +13,14 @@ final class WPSEO_Admin_Asset_Analysis_Worker_Location implements WPSEO_Admin_As
 	/**
 	 * Holds the asset's location.
 	 *
-	 * @var WPSEO_Admin_Asset_Location $asset_location.
+	 * @var WPSEO_Admin_Asset_Location
 	 */
 	private $asset_location;
 
 	/**
 	 * Holds the asset itself.
 	 *
-	 * @var WPSEO_Admin_Asset $asset.
+	 * @var WPSEO_Admin_Asset
 	 */
 	private $asset;
 
@@ -36,14 +36,14 @@ final class WPSEO_Admin_Asset_Analysis_Worker_Location implements WPSEO_Admin_As
 			$flat_version  = $asset_manager->flatten_version( WPSEO_VERSION );
 		}
 
-		$analysis_worker = 'wp-seo-' . $name . '-' . $flat_version;
+		$analysis_worker = $name . '-' . $flat_version . '.js';
 
 		$this->asset_location = WPSEO_Admin_Asset_Manager::create_default_location();
 		$this->asset          = new WPSEO_Admin_Asset(
-			array(
+			[
 				'name' => $name,
 				'src'  => $analysis_worker,
-			)
+			]
 		);
 	}
 
@@ -66,7 +66,7 @@ final class WPSEO_Admin_Asset_Analysis_Worker_Location implements WPSEO_Admin_As
 	 */
 	public function get_url( WPSEO_Admin_Asset $asset, $type ) {
 		$scheme = wp_parse_url( $asset->get_src(), PHP_URL_SCHEME );
-		if ( in_array( $scheme, array( 'http', 'https' ), true ) ) {
+		if ( in_array( $scheme, [ 'http', 'https' ], true ) ) {
 			return $asset->get_src();
 		}
 

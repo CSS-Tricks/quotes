@@ -7,7 +7,7 @@
  * @uses Yoast_Form $yform Form object.
  */
 
-$remove_buttons = array( __( 'Keep', 'wordpress-seo' ), __( 'Remove', 'wordpress-seo' ) );
+$remove_buttons = [ __( 'Keep', 'wordpress-seo' ), __( 'Remove', 'wordpress-seo' ) ];
 
 $stripcategorybase_help = new WPSEO_Admin_Help_Panel(
 	'opengraph',
@@ -21,7 +21,7 @@ $stripcategorybase_help = new WPSEO_Admin_Help_Panel(
 
 $yform->light_switch(
 	'stripcategorybase',
-	__( 'Remove the categories prefix', 'wordpress-seo' ),
+	__( 'Remove the categories prefix?', 'wordpress-seo' ),
 	$remove_buttons,
 	false,
 	$stripcategorybase_help->get_button_html() . $stripcategorybase_help->get_panel_html()

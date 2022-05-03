@@ -17,7 +17,7 @@ class WPSEO_Sitemaps_Cache {
 	 *
 	 * @var array
 	 */
-	protected static $cache_clear = array();
+	protected static $cache_clear = [];
 
 	/**
 	 * Mirror of enabled status for static calls.
@@ -38,27 +38,27 @@ class WPSEO_Sitemaps_Cache {
 	 *
 	 * @var array
 	 */
-	protected static $clear_types = array();
+	protected static $clear_types = [];
 
 	/**
 	 * Hook methods for invalidation on necessary events.
 	 */
 	public function __construct() {
 
-		add_action( 'init', array( $this, 'init' ) );
+		add_action( 'init', [ $this, 'init' ] );
 
-		add_action( 'deleted_term_relationships', array( __CLASS__, 'invalidate' ) );
+		add_action( 'deleted_term_relationships', [ __CLASS__, 'invalidate' ] );
 
-		add_action( 'update_option', array( __CLASS__, 'clear_on_option_update' ) );
+		add_action( 'update_option', [ __CLASS__, 'clear_on_option_update' ] );
 
-		add_action( 'edited_terms', array( __CLASS__, 'invalidate_helper' ), 10, 2 );
-		add_action( 'clean_term_cache', array( __CLASS__, 'invalidate_helper' ), 10, 2 );
-		add_action( 'clean_object_term_cache', array( __CLASS__, 'invalidate_helper' ), 10, 2 );
+		add_action( 'edited_terms', [ __CLASS__, 'invalidate_helper' ], 10, 2 );
+		add_action( 'clean_term_cache', [ __CLASS__, 'invalidate_helper' ], 10, 2 );
+		add_action( 'clean_object_term_cache', [ __CLASS__, 'invalidate_helper' ], 10, 2 );
 
-		add_action( 'user_register', array( __CLASS__, 'invalidate_author' ) );
-		add_action( 'delete_user', array( __CLASS__, 'invalidate_author' ) );
+		add_action( 'user_register', [ __CLASS__, 'invalidate_author' ] );
+		add_action( 'delete_user', [ __CLASS__, 'invalidate_author' ] );
 
-		add_action( 'shutdown', array( __CLASS__, 'clear_queued' ) );
+		add_action( 'shutdown', [ __CLASS__, 'clear_queued' ] );
 	}
 
 	/**
@@ -74,7 +74,7 @@ class WPSEO_Sitemaps_Cache {
 	 *
 	 * @since 3.2
 	 *
-	 * @return boolean
+	 * @return bool
 	 */
 	public function is_enabled() {
 
@@ -94,12 +94,12 @@ class WPSEO_Sitemaps_Cache {
 	 * @param string $type Sitemap type.
 	 * @param int    $page Page number to retrieve.
 	 *
-	 * @return string|boolean
+	 * @return string|bool
 	 */
 	public function get_sitemap( $type, $page ) {
 
 		$transient_key = WPSEO_Sitemaps_Cache_Validator::get_storage_key( $type, $page );
-		if ( false === $transient_key ) {
+		if ( $transient_key === false ) {
 			return false;
 		}
 
@@ -112,7 +112,7 @@ class WPSEO_Sitemaps_Cache {
 	 * @param string $type Sitemap type.
 	 * @param int    $page Page number to retrieve.
 	 *
-	 * @return null|WPSEO_Sitemap_Cache_Data Null on no cache found otherwise object containing sitemap and meta data.
+	 * @return WPSEO_Sitemap_Cache_Data|null Null on no cache found otherwise object containing sitemap and meta data.
 	 */
 	public function get_sitemap_data( $type, $page ) {
 
@@ -122,9 +122,15 @@ class WPSEO_Sitemaps_Cache {
 			return null;
 		}
 
-		// Unserialize Cache Data object (is_serialized doesn't recognize classes).
-		if ( is_string( $sitemap ) && 0 === strpos( $sitemap, 'C:24:"WPSEO_Sitemap_Cache_Data"' ) ) {
-
+		/*
+		 * Unserialize Cache Data object as is_serialized() doesn't recognize classes in C format.
+		 * This work-around should no longer be needed once the minimum PHP version has gone up to PHP 7.4,
+		 * as the `WPSEO_Sitemap_Cache_Data` class uses O format serialization in PHP 7.4 and higher.
+		 *
+		 * @link https://wiki.php.net/rfc/custom_object_serialization
+		 */
+		if ( is_string( $sitemap ) && strpos( $sitemap, 'C:24:"WPSEO_Sitemap_Cache_Data"' ) === 0 ) {
+			// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.serialize_unserialize -- Can't be avoided due to how WP stores options.
 			$sitemap = unserialize( $sitemap );
 		}
 
@@ -152,7 +158,7 @@ class WPSEO_Sitemaps_Cache {
 
 		$transient_key = WPSEO_Sitemaps_Cache_Validator::get_storage_key( $type, $page );
 
-		if ( false === $transient_key ) {
+		if ( $transient_key === false ) {
 			return false;
 		}
 
@@ -179,7 +185,7 @@ class WPSEO_Sitemaps_Cache {
 	 */
 	public static function invalidate( $type ) {
 
-		self::clear( array( $type ) );
+		self::clear( [ $type ] );
 	}
 
 	/**
@@ -195,8 +201,8 @@ class WPSEO_Sitemaps_Cache {
 	public static function invalidate_helper( $unused, $type ) {
 
 		if (
-			WPSEO_Options::get( 'noindex-' . $type ) === false ||
-			WPSEO_Options::get( 'noindex-tax-' . $type ) === false
+			WPSEO_Options::get( 'noindex-' . $type ) === false
+			|| WPSEO_Options::get( 'noindex-tax-' . $type ) === false
 		) {
 			self::invalidate( $type );
 		}
@@ -217,7 +223,7 @@ class WPSEO_Sitemaps_Cache {
 			return false;
 		}
 
-		if ( 'user_register' === current_action() ) {
+		if ( current_action() === 'user_register' ) {
 			update_user_meta( $user_id, '_yoast_wpseo_profile_updated', time() );
 		}
 
@@ -261,7 +267,7 @@ class WPSEO_Sitemaps_Cache {
 	 *
 	 * @return void
 	 */
-	public static function clear( $types = array() ) {
+	public static function clear( $types = [] ) {
 
 		if ( ! self::$is_enabled ) {
 			return;
@@ -275,12 +281,12 @@ class WPSEO_Sitemaps_Cache {
 		}
 
 		// Always invalidate the index sitemap as well.
-		if ( ! in_array( WPSEO_Sitemaps::SITEMAP_INDEX_TYPE, $types ) ) {
+		if ( ! in_array( WPSEO_Sitemaps::SITEMAP_INDEX_TYPE, $types, true ) ) {
 			array_unshift( $types, WPSEO_Sitemaps::SITEMAP_INDEX_TYPE );
 		}
 
 		foreach ( $types as $type ) {
-			if ( ! in_array( $type, self::$clear_types ) ) {
+			if ( ! in_array( $type, self::$clear_types, true ) ) {
 				self::$clear_types[] = $type;
 			}
 		}
@@ -295,7 +301,7 @@ class WPSEO_Sitemaps_Cache {
 
 			WPSEO_Sitemaps_Cache_Validator::invalidate_storage();
 			self::$clear_all   = false;
-			self::$clear_types = array();
+			self::$clear_types = [];
 
 			return;
 		}
@@ -304,7 +310,7 @@ class WPSEO_Sitemaps_Cache {
 			WPSEO_Sitemaps_Cache_Validator::invalidate_storage( $type );
 		}
 
-		self::$clear_types = array();
+		self::$clear_types = [];
 	}
 
 	/**

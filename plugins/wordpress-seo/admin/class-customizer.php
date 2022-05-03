@@ -29,30 +29,30 @@ class WPSEO_Customizer {
 	 *
 	 * @var array
 	 */
-	private $default_setting_args = array(
+	private $default_setting_args = [
 		'default'   => '',
 		'type'      => 'option',
 		'transport' => 'refresh',
-	);
+	];
 
 	/**
 	 * Default arguments for the breadcrumbs customizer control object.
 	 *
 	 * @var array
 	 */
-	private $default_control_args = array(
+	private $default_control_args = [
 		'label'    => '',
 		'type'     => 'text',
 		'section'  => 'wpseo_breadcrumbs_customizer_section',
 		'settings' => '',
 		'context'  => '',
-	);
+	];
 
 	/**
 	 * Construct Method.
 	 */
 	public function __construct() {
-		add_action( 'customize_register', array( $this, 'wpseo_customize_register' ) );
+		add_action( 'customize_register', [ $this, 'wpseo_customize_register' ] );
 	}
 
 	/**
@@ -81,12 +81,12 @@ class WPSEO_Customizer {
 	 * Add the breadcrumbs section to the customizer.
 	 */
 	private function breadcrumbs_section() {
-		$section_args = array(
+		$section_args = [
 			/* translators: %s is the name of the plugin */
 			'title'           => sprintf( __( '%s Breadcrumbs', 'wordpress-seo' ), 'Yoast SEO' ),
 			'priority'        => 999,
-			'active_callback' => array( $this, 'breadcrumbs_active_callback' ),
-		);
+			'active_callback' => [ $this, 'breadcrumbs_active_callback' ],
+		];
 
 		$this->wp_customize->add_section( 'wpseo_breadcrumbs_customizer_section', $section_args );
 	}
@@ -97,7 +97,7 @@ class WPSEO_Customizer {
 	 * @return bool
 	 */
 	public function breadcrumbs_active_callback() {
-		return true === ( current_theme_supports( 'yoast-seo-breadcrumbs' ) || WPSEO_Options::get( 'breadcrumbs-enable' ) );
+		return current_theme_supports( 'yoast-seo-breadcrumbs' ) || WPSEO_Options::get( 'breadcrumbs-enable' );
 	}
 
 	/**
@@ -105,11 +105,11 @@ class WPSEO_Customizer {
 	 */
 	private function breadcrumbs_blog_show_setting() {
 		$index        = 'breadcrumbs-display-blog-page';
-		$control_args = array(
+		$control_args = [
 			'label'           => __( 'Show blog page in breadcrumbs', 'wordpress-seo' ),
 			'type'            => 'checkbox',
-			'active_callback' => array( $this, 'breadcrumbs_blog_show_active_cb' ),
-		);
+			'active_callback' => [ $this, 'breadcrumbs_blog_show_active_cb' ],
+		];
 
 		$this->add_setting_and_control( $index, $control_args );
 	}
@@ -120,7 +120,7 @@ class WPSEO_Customizer {
 	 * @return bool
 	 */
 	public function breadcrumbs_blog_show_active_cb() {
-		return 'page' === get_option( 'show_on_front' );
+		return get_option( 'show_on_front' ) === 'page';
 	}
 
 	/**
@@ -128,9 +128,9 @@ class WPSEO_Customizer {
 	 */
 	private function breadcrumbs_separator_setting() {
 		$index        = 'breadcrumbs-sep';
-		$control_args = array(
+		$control_args = [
 			'label' => __( 'Breadcrumbs separator:', 'wordpress-seo' ),
-		);
+		];
 		$id           = 'wpseo-breadcrumbs-separator';
 
 		$this->add_setting_and_control( $index, $control_args, $id );
@@ -141,9 +141,9 @@ class WPSEO_Customizer {
 	 */
 	private function breadcrumbs_home_setting() {
 		$index        = 'breadcrumbs-home';
-		$control_args = array(
+		$control_args = [
 			'label' => __( 'Anchor text for the homepage:', 'wordpress-seo' ),
-		);
+		];
 
 		$this->add_setting_and_control( $index, $control_args );
 	}
@@ -153,9 +153,9 @@ class WPSEO_Customizer {
 	 */
 	private function breadcrumbs_prefix_setting() {
 		$index        = 'breadcrumbs-prefix';
-		$control_args = array(
+		$control_args = [
 			'label' => __( 'Prefix for breadcrumbs:', 'wordpress-seo' ),
-		);
+		];
 
 		$this->add_setting_and_control( $index, $control_args );
 	}
@@ -165,9 +165,9 @@ class WPSEO_Customizer {
 	 */
 	private function breadcrumbs_archiveprefix_setting() {
 		$index        = 'breadcrumbs-archiveprefix';
-		$control_args = array(
+		$control_args = [
 			'label' => __( 'Prefix for archive pages:', 'wordpress-seo' ),
-		);
+		];
 
 		$this->add_setting_and_control( $index, $control_args );
 	}
@@ -177,9 +177,9 @@ class WPSEO_Customizer {
 	 */
 	private function breadcrumbs_searchprefix_setting() {
 		$index        = 'breadcrumbs-searchprefix';
-		$control_args = array(
+		$control_args = [
 			'label' => __( 'Prefix for search result pages:', 'wordpress-seo' ),
-		);
+		];
 
 		$this->add_setting_and_control( $index, $control_args );
 	}
@@ -189,9 +189,9 @@ class WPSEO_Customizer {
 	 */
 	private function breadcrumbs_404_setting() {
 		$index        = 'breadcrumbs-404crumb';
-		$control_args = array(
+		$control_args = [
 			'label' => __( 'Breadcrumb for 404 pages:', 'wordpress-seo' ),
-		);
+		];
 
 		$this->add_setting_and_control( $index, $control_args );
 	}
@@ -199,15 +199,15 @@ class WPSEO_Customizer {
 	/**
 	 * Adds the customizer setting and control.
 	 *
-	 * @param string $index           Array key index to use for the customizer setting.
-	 * @param array  $control_args    Customizer control object arguments.
-	 *                                Only those different from the default need to be passed.
-	 * @param string $id              Optional. Customizer control object ID.
-	 *                                Will default to 'wpseo-' . $index.
-	 * @param array  $custom_settings Optional. Customizer setting arguments.
-	 *                                Only those different from the default need to be passed.
+	 * @param string      $index           Array key index to use for the customizer setting.
+	 * @param array       $control_args    Customizer control object arguments.
+	 *                                     Only those different from the default need to be passed.
+	 * @param string|null $id              Optional. Customizer control object ID.
+	 *                                     Will default to 'wpseo-' . $index.
+	 * @param array       $custom_settings Optional. Customizer setting arguments.
+	 *                                     Only those different from the default need to be passed.
 	 */
-	private function add_setting_and_control( $index, $control_args, $id = null, $custom_settings = array() ) {
+	private function add_setting_and_control( $index, $control_args, $id = null, $custom_settings = [] ) {
 		$setting                  = sprintf( $this->setting_template, $index );
 		$control_args             = array_merge( $this->default_control_args, $control_args );
 		$control_args['settings'] = $setting;

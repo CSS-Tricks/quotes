@@ -25,6 +25,13 @@ class Yoast_Feature_Toggle {
 	protected $setting = '';
 
 	/**
+	 * Whether the feature is premium or not.
+	 *
+	 * @var bool
+	 */
+	protected $premium = false;
+
+	/**
 	 * Feature toggle label.
 	 *
 	 * @var string
@@ -37,6 +44,13 @@ class Yoast_Feature_Toggle {
 	 * @var string
 	 */
 	protected $read_more_url = '';
+
+	/**
+	 * URL to learn more about the premium feature.
+	 *
+	 * @var string
+	 */
+	protected $premium_url = '';
 
 	/**
 	 * Label for the learn more link.
@@ -53,11 +67,32 @@ class Yoast_Feature_Toggle {
 	protected $extra = '';
 
 	/**
+	 * Additional content to be rendered after the toggle.
+	 *
+	 * @var string
+	 */
+	protected $after = '';
+
+	/**
 	 * Value to specify the feature toggle order.
 	 *
 	 * @var string
 	 */
 	protected $order = 100;
+
+	/**
+	 * Disable the integration toggle.
+	 *
+	 * @var bool
+	 */
+	protected $disabled = false;
+
+	/**
+	 * Whether the feature is new or not.
+	 *
+	 * @var bool
+	 */
+	protected $new = false;
 
 	/**
 	 * Constructor.
@@ -69,18 +104,21 @@ class Yoast_Feature_Toggle {
 	 *
 	 *     @type string $name            Required. Feature toggle identifier.
 	 *     @type string $setting         Required. Name of the setting the feature toggle is associated with.
-	 *     @type string $label           Required. Feature toggle label.
+	 *     @type string $disabled        Whether the feature is premium or not.
+	 *     @type string $label           Feature toggle label.
 	 *     @type string $read_more_url   URL to learn more about the feature. Default empty string.
 	 *     @type string $read_more_label Label for the learn more link. Default empty string.
 	 *     @type string $extra           Additional help content for the feature. Default empty string.
 	 *     @type int    $order           Value to specify the feature toggle order. A lower value indicates
 	 *                                   a higher priority. Default 100.
+	 *     @type bool   $disabled        Disable the integration toggle. Default false.
+	 *     @type string $new             Whether the feature is new or not.
 	 * }
 	 *
 	 * @throws InvalidArgumentException Thrown when a required argument is missing.
 	 */
 	public function __construct( array $args ) {
-		$required_keys = array( 'name', 'setting', 'label' );
+		$required_keys = [ 'name', 'setting' ];
 
 		foreach ( $required_keys as $key ) {
 			if ( empty( $args[ $key ] ) ) {

@@ -11,15 +11,6 @@ if ( ! defined( 'WPSEO_VERSION' ) ) {
 	exit();
 }
 
-if ( ! function_exists( 'initialize_wpseo_front' ) ) {
-	/**
-	 * Wraps frontend class.
-	 */
-	function initialize_wpseo_front() {
-		WPSEO_Frontend::get_instance();
-	}
-}
-
 if ( ! function_exists( 'yoast_breadcrumb' ) ) {
 	/**
 	 * Template tag for breadcrumbs.
@@ -47,7 +38,7 @@ if ( ! function_exists( 'yoast_get_primary_term_id' ) ) {
 	 * Get the primary term ID.
 	 *
 	 * @param string           $taxonomy Optional. The taxonomy to get the primary term ID for. Defaults to category.
-	 * @param null|int|WP_Post $post     Optional. Post to get the primary term ID for.
+	 * @param int|WP_Post|null $post     Optional. Post to get the primary term ID for.
 	 *
 	 * @return bool|int
 	 */
@@ -64,7 +55,7 @@ if ( ! function_exists( 'yoast_get_primary_term' ) ) {
 	 * Get the primary term name.
 	 *
 	 * @param string           $taxonomy Optional. The taxonomy to get the primary term for. Defaults to category.
-	 * @param null|int|WP_Post $post     Optional. Post to get the primary term for.
+	 * @param int|WP_Post|null $post     Optional. Post to get the primary term for.
 	 *
 	 * @return string Name of the primary term.
 	 */
@@ -83,17 +74,17 @@ if ( ! function_exists( 'yoast_get_primary_term' ) ) {
 /**
  * Replace `%%variable_placeholders%%` with their real value based on the current requested page/post/cpt.
  *
- * @param string $string The string to replace the variables in.
- * @param object $args   The object some of the replacement values might come from,
- *                       could be a post, taxonomy or term.
- * @param array  $omit   Variables that should not be replaced by this function.
+ * @param string $text The string to replace the variables in.
+ * @param object $args The object some of the replacement values might come from,
+ *                     could be a post, taxonomy or term.
+ * @param array  $omit Variables that should not be replaced by this function.
  *
  * @return string
  */
-function wpseo_replace_vars( $string, $args, $omit = array() ) {
+function wpseo_replace_vars( $text, $args, $omit = [] ) {
 	$replacer = new WPSEO_Replace_Vars();
 
-	return $replacer->replace( $string, $args, $omit );
+	return $replacer->replace( $text, $args, $omit );
 }
 
 /**
@@ -129,7 +120,7 @@ function wpseo_replace_vars( $string, $args, $omit = array() ) {
  *
  * @since 1.5.4
  *
- * @param string $var              The name of the variable to replace, i.e. '%%var%%'.
+ * @param string $replacevar_name  The name of the variable to replace, i.e. '%%var%%'.
  *                                 Note: the surrounding %% are optional, name can only contain [A-Za-z0-9_-].
  * @param mixed  $replace_function Function or method to call to retrieve the replacement value for the variable.
  *                                 Uses the same format as add_filter/add_action function parameter and
@@ -139,8 +130,8 @@ function wpseo_replace_vars( $string, $args, $omit = array() ) {
  *
  * @return bool Whether the replacement function was successfully registered.
  */
-function wpseo_register_var_replacement( $var, $replace_function, $type = 'advanced', $help_text = '' ) {
-	return WPSEO_Replace_Vars::register_replacement( $var, $replace_function, $type, $help_text );
+function wpseo_register_var_replacement( $replacevar_name, $replace_function, $type = 'advanced', $help_text = '' ) {
+	return WPSEO_Replace_Vars::register_replacement( $replacevar_name, $replace_function, $type, $help_text );
 }
 
 /**
@@ -159,12 +150,12 @@ function wpseo_register_var_replacement( $var, $replace_function, $type = 'advan
 function wpseo_wpml_config( $config ) {
 	global $sitepress;
 
-	if ( ( is_array( $config ) && isset( $config['wpml-config']['admin-texts']['key'] ) ) && ( is_array( $config['wpml-config']['admin-texts']['key'] ) && $config['wpml-config']['admin-texts']['key'] !== array() ) ) {
+	if ( ( is_array( $config ) && isset( $config['wpml-config']['admin-texts']['key'] ) ) && ( is_array( $config['wpml-config']['admin-texts']['key'] ) && $config['wpml-config']['admin-texts']['key'] !== [] ) ) {
 		$admin_texts = $config['wpml-config']['admin-texts']['key'];
 		foreach ( $admin_texts as $k => $val ) {
 			if ( $val['attr']['name'] === 'wpseo_titles' ) {
 				$translate_cp = array_keys( $sitepress->get_translatable_documents() );
-				if ( is_array( $translate_cp ) && $translate_cp !== array() ) {
+				if ( is_array( $translate_cp ) && $translate_cp !== [] ) {
 					foreach ( $translate_cp as $post_type ) {
 						$admin_texts[ $k ]['key'][]['attr']['name'] = 'title-' . $post_type;
 						$admin_texts[ $k ]['key'][]['attr']['name'] = 'metadesc-' . $post_type;
@@ -172,7 +163,7 @@ function wpseo_wpml_config( $config ) {
 						$admin_texts[ $k ]['key'][]['attr']['name'] = 'metadesc-ptarchive-' . $post_type;
 
 						$translate_tax = $sitepress->get_translatable_taxonomies( false, $post_type );
-						if ( is_array( $translate_tax ) && $translate_tax !== array() ) {
+						if ( is_array( $translate_tax ) && $translate_tax !== [] ) {
 							foreach ( $translate_tax as $taxonomy ) {
 								$admin_texts[ $k ]['key'][]['attr']['name'] = 'title-tax-' . $taxonomy;
 								$admin_texts[ $k ]['key'][]['attr']['name'] = 'metadesc-tax-' . $taxonomy;
@@ -195,26 +186,29 @@ add_filter( 'icl_wpml_config_array', 'wpseo_wpml_config' );
  * Yoast SEO breadcrumb shortcode.
  * [wpseo_breadcrumb]
  *
+ * @deprecated 14.0
+ * @codeCoverageIgnore
+ *
  * @return string
  */
 function wpseo_shortcode_yoast_breadcrumb() {
-	return yoast_breadcrumb( '', '', false );
+	_deprecated_function( __FUNCTION__, 'WPSEO 14.0' );
+
+	return '';
 }
 
-add_shortcode( 'wpseo_breadcrumb', 'wpseo_shortcode_yoast_breadcrumb' );
-
-if ( ! extension_loaded( 'ctype' ) || ! function_exists( 'ctype_digit' ) ) {
+if ( ! function_exists( 'ctype_digit' ) ) {
 	/**
 	 * Emulate PHP native ctype_digit() function for when the ctype extension would be disabled *sigh*.
 	 * Only emulates the behaviour for when the input is a string, does not handle integer input as ascii value.
 	 *
-	 * @param string $string String input to validate.
+	 * @param string $text String input to validate.
 	 *
 	 * @return bool
 	 */
-	function ctype_digit( $string ) {
+	function ctype_digit( $text ) {
 		$return = false;
-		if ( ( is_string( $string ) && $string !== '' ) && preg_match( '`^\d+$`', $string ) === 1 ) {
+		if ( ( is_string( $text ) && $text !== '' ) && preg_match( '`^\d+$`', $text ) === 1 ) {
 			$return = true;
 		}
 
@@ -233,7 +227,7 @@ if ( ! extension_loaded( 'ctype' ) || ! function_exists( 'ctype_digit' ) ) {
  * @param string $taxonomy         The taxonomy that the taxonomy term was splitted for.
  */
 function wpseo_split_shared_term( $old_term_id, $new_term_id, $term_taxonomy_id, $taxonomy ) {
-	$tax_meta = get_option( 'wpseo_taxonomy_meta', array() );
+	$tax_meta = get_option( 'wpseo_taxonomy_meta', [] );
 
 	if ( ! empty( $tax_meta[ $taxonomy ][ $old_term_id ] ) ) {
 		$tax_meta[ $taxonomy ][ $new_term_id ] = $tax_meta[ $taxonomy ][ $old_term_id ];
@@ -255,4 +249,68 @@ function wpseo_get_capabilities() {
 		do_action( 'wpseo_register_capabilities' );
 	}
 	return WPSEO_Capability_Manager_Factory::get()->get_capabilities();
+}
+
+if ( ! function_exists( 'wp_get_environment_type' ) ) {
+	/**
+	 * Retrieves the current environment type.
+	 *
+	 * The type can be set via the `WP_ENVIRONMENT_TYPE` global system variable,
+	 * or a constant of the same name.
+	 *
+	 * Possible values include 'local', 'development', 'staging', 'production'.
+	 * If not set, the type defaults to 'production'.
+	 *
+	 * Backfill for `wp_get_environment_type()` introduced in WordPress 5.5. Code
+	 * is adapted to the Yoast PHP coding standards.
+	 *
+	 * @return string The current environment type.
+	 */
+	function wp_get_environment_type() {
+		static $current_env = '';
+
+		if ( $current_env ) {
+			return $current_env;
+		}
+
+		$wp_environments = [
+			'local',
+			'development',
+			'staging',
+			'production',
+		];
+
+		// Check if the environment variable has been set, if `getenv` is available on the system.
+		if ( function_exists( 'getenv' ) ) {
+			$has_env = getenv( 'WP_ENVIRONMENT_TYPES' );
+			if ( $has_env !== false ) {
+				$wp_environments = explode( ',', $has_env );
+			}
+		}
+
+		// Fetch the environment types from a constant, this overrides the global system variable.
+		if ( defined( 'WP_ENVIRONMENT_TYPES' ) ) {
+			$wp_environments = WP_ENVIRONMENT_TYPES;
+		}
+
+		// Check if the environment variable has been set, if `getenv` is available on the system.
+		if ( function_exists( 'getenv' ) ) {
+			$has_env = getenv( 'WP_ENVIRONMENT_TYPE' );
+			if ( $has_env !== false ) {
+				$current_env = $has_env;
+			}
+		}
+
+		// Fetch the environment from a constant, this overrides the global system variable.
+		if ( defined( 'WP_ENVIRONMENT_TYPE' ) ) {
+			$current_env = WP_ENVIRONMENT_TYPE;
+		}
+
+		// Make sure the environment is an allowed one, and not accidentally set to an invalid value.
+		if ( ! in_array( $current_env, $wp_environments, true ) ) {
+			$current_env = 'production';
+		}
+
+		return $current_env;
+	}
 }
